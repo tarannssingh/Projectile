@@ -58,6 +58,20 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     Timer timer;
     int ticks=0;
 
+    //Variables required for projectile calculations
+    static double t= 0.0; 
+    static double vx;
+    static double vy;
+    static double hx;
+    static double hy;
+    static double ho;
+
+    //Used to store the location of the projectile pathing
+    ArrayList<Integer> xcoords = new ArrayList<Integer>();
+    ArrayList<Integer> ycoords = new ArrayList<Integer>();
+    
+
+
 
     public static void main(String[] args) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         //creates a Frame object using Frame.java
@@ -100,6 +114,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         super.paintComponent(g);
         draw(g);
     }
+    
     //The method that draws the actual graphics
     public void draw(Graphics g){
         //bg
@@ -118,17 +133,39 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             ///g.drawLine(mousexpos+5,mouseypos,mousexpos+5,0);
             ///g.drawLine(projx+5,projy+9,0,projy+9);
             g.fillOval(mousexpos,projy+4,10,10);
+
+            //find the initial pathing of the projectile as time increases and storing it in the arraylist
+            while(hy>0){
+                t+=0.1;
+                hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+
+                int rhy = ScreenHeight - (int) hy;
+                int rhx =(int) hx;
+                xcoords.add(projx+rhx);
+                ycoords.add(rhy);              
+            }
+            //drawing the pathing of the projectile while it refreshes
+            if(hy<0){
+                for(int i =0; i<xcoords.size(); i++){
+                    g.setColor(Color.white);
+                    g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
+                }
+            }
         }
+        //makes sure to clear everything so new projectile can be drawn
+        if(shoot == false){
+            xcoords.clear();
+            ycoords.clear();
+            t=0;
+        }
+
+
+        
+
     }
 
-    //The following methods are used to determine if a mouse action has been performed
-    @Override
-    public void mousePressed(java.awt.event.MouseEvent e) {
-        System.out.println("Mouse Clicked");  
-    }
-
-    @Override
-    public void mouseReleased(java.awt.event.MouseEvent e) {
+    public void calculations(){
         //Getting the location of the mouse when it is released
         PointerInfo info = MouseInfo.getPointerInfo();
         mousexpos = (int) info.getLocation().getX()-12;
@@ -145,6 +182,30 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         //Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
         ivelocity = hypotenuse/1.5;
+
+        //Conducts all the calculations for projectile elements
+        //Important to note that initial height is based on difference of projectile y-location and ground level
+        ho = ScreenHeight-PIXEL_SIZE-projy;
+        vx = ivelocity * Math.cos(Math.toRadians(angle));
+        vy = (-32 * t) + ivelocity*Math.sin(Math.toRadians(angle));
+        hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+        hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+
+        
+
+    }
+
+    //The following methods are used to determine if a mouse action has been performed
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent e) {
+        System.out.println("Mouse Clicked");
+        //makes shoot false to reset previous projectile
+        shoot = false;  
+    }
+
+    @Override
+    public void mouseReleased(java.awt.event.MouseEvent e) {
+        calculations();
         //checking to see if the shot is behind and lower than the ball
         if(mousexpos<500 && mouseypos>ScreenHeight-300){
             shoot = true;
