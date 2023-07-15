@@ -1,4 +1,4 @@
-//basic imports that are being used or are most likly going to be used
+//*basic imports that are being used or are most likly going to be used
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.*;
@@ -14,51 +14,51 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
 
-//makes sure to add Action Listener to eventually allow us to compute user action on the screen
+//*makes sure to add Action Listener to eventually allow us to compute user action on the screen
 public class Panel extends JPanel implements MouseListener, ActionListener{
 
-    //Initiallizes the size of a larger pixel that is easier to work with
+    //*Initiallizes the size of a larger pixel that is easier to work with
     static int PIXEL_SIZE = 20;
-    static int ScreenWidth;
+    static int ScreenWidth; 
     static int ScreenHeight;
 
-    //Basic variables that are use dto determine if projectile is shoot and if cannon is moved
+    //*Basic variables that are use dto determine if projectile is shoot and if cannon is moved 
     static boolean shoot= false;
     boolean moveRight= false;
     boolean moveLeft= false;
 
-    //Variables that are used to determine the position of the projectile
+    //*Variables that are used to determine the position of the projectile
     static int projx;
     static int projy;
 
-    //Variables that are used to determine the position of the cannon
+    //*Variables that are used to determine the position of the cannon
     static int wheel1;
     static int wheel2;
     static int body;
     static int shaft;
 
-    //Variables required to calculate the trajectory of the projectile
+    //*Variables required to calculate the trajectory of the projectile
     static double ivelocity;
     static double angle;
 
-    //Captured variables that are use to determine angle and velocity
+    //*Captured variables that are use to determine angle and velocity
     static int mousexpos;
     static int mouseypos;
 
-    //The intersection point of the mouse release and projectile position
+    //*The intersection point of the mouse release and projectile position
     static int intersectionx;
     static int intersectiony;
-    //The length of the opposite and adjacent sides of the triangle formed by the intersection point and the projectile
+    //*The length of the opposite and adjacent sides of the triangle formed by the intersection point and the projectile
     static double opposite;
     static double adjacent;
     static double hypotenuse;
 
-    //Variables used to allow for ticks to function (defined later)
+    //*Variables used to allow for ticks to function (defined later)
     int DELAY = 5;
     Timer timer;
     int ticks=0;
 
-    //Variables required for projectile calculations
+    //*Variables required for projectile calculations
     static double t= 0.0; 
     static double vx;
     static double vy;
@@ -66,33 +66,36 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double hy;
     static double ho;
 
-    //Used to store the location of the projectile pathing
+    //*Used to store the location of the projectile pathing
     ArrayList<Integer> xcoords = new ArrayList<Integer>();
     ArrayList<Integer> ycoords = new ArrayList<Integer>();
+    //*tdiffs is a method to store the distance between each component of the projectile - may be useful later when it comes to drawing the projectile due to time
+    ArrayList<Integer> tdiffs = new ArrayList<Integer>();
     
 
 
 
     public static void main(String[] args) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
-        //creates a Frame object using Frame.java
+        //*creates a Frame object using Frame.java
         Frame frame = new Frame();
-        //all getting the size of the screen of a specific user/ device
+        //*all getting the size of the screen of a specific user/ device
         Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
-        //setting the variable ScreenWidth and ScreenHeight to the width and height of the users device
+        //*setting the variable ScreenWidth and ScreenHeight to the width and height of the users device
         ScreenWidth = (int) screenSize.getWidth();
         ScreenHeight = (int) screenSize.getHeight();
-        //setting our frame to the width and height of the users device 
+        //*setting our frame to the width and height of the users device 
         frame.setSize((int) screenSize.getWidth(),(int) screenSize.getHeight());
-        //This sets the initila position of the projectile to be at the bottom of the screen
+        //*This sets the initila position of the projectile to be at the bottom of the screen
         projx = 500;
         projy = ScreenHeight - 300;
-        //This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
+        //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
         
         
     }
 
-    /*The following three methods allow for performed actions that must be redrawn using graphics to be seen
+    /* 
+     *The following three methods allow for performed actions that must be redrawn using graphics to be seen
      *This is accomplished using the use of ticks which is a 5 millisecond time period until which the method
      *repaint() is called and the graphics are redrawn
     */
@@ -109,55 +112,75 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
 
     
-    //Graphics initillizer that is used to call methods that draw the graphics
+    //*Graphics initillizer that is used to call methods that draw the graphics
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         draw(g);
     }
     
-    //The method that draws the actual graphics
+    //*The method that draws the actual graphics
     public void draw(Graphics g){
-        //bg
+        //*bg
         g.setColor(new Color(173,216,230));
         g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-        //ground
+        //*ground
         g.setColor(new Color(0,100,0));
         g.fillRect(0,ScreenHeight-90,ScreenWidth,90); 
         
         if(shoot == true){
-            //projectile (if shot)
+            //*projectile (if shot)
             g.setColor(Color.red);
             g.fillOval(projx,projy,PIXEL_SIZE,PIXEL_SIZE);
-            //seeing the intersection triangle
+            //*seeing the intersection triangle
             g.fillOval(mousexpos,mouseypos,10,10);
             ///g.drawLine(mousexpos+5,mouseypos,mousexpos+5,0);
             ///g.drawLine(projx+5,projy+9,0,projy+9);
             g.fillOval(mousexpos,projy+4,10,10);
 
-            //find the initial pathing of the projectile as time increases and storing it in the arraylist
+            //*find the initial pathing of the projectile as time increases and storing it in the arraylist
             while(hy>0){
-                t+=0.1;
+
+                //* if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                if(ivelocity<200){
+                  t+=0.1;  
+                }
+                else{
+                    t+=0.05;
+                }
+                
                 hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
                 hx= ivelocity* t * Math.cos(Math.toRadians(angle));
 
                 int rhy = ScreenHeight - (int) hy;
                 int rhx =(int) hx;
                 xcoords.add(projx+rhx);
-                ycoords.add(rhy);              
-            }
-            //drawing the pathing of the projectile while it refreshes
+                ycoords.add(rhy);
+                
+                //* storing values in tdiff by adding x and y difference from the next point
+                for(int i =0; i<xcoords.size()-1; i++){
+                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
+                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
+                    int tdiff = xdiff + ydiff;
+                    tdiffs.add(tdiff);
+                }
+            }   
+            //*drawing the pathing of the projectile while it refreshes
             if(hy<0){
                 for(int i =0; i<xcoords.size(); i++){
                     g.setColor(Color.white);
                     g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
                 }
+                
             }
         }
-        //makes sure to clear everything so new projectile can be drawn
+        //*makes sure to clear everything so new projectile can be drawn
         if(shoot == false){
             xcoords.clear();
             ycoords.clear();
+            tdiffs.clear();
             t=0;
+            projx = 500;
+            projy = ScreenHeight - 300;
         }
 
 
@@ -166,25 +189,26 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     }
 
     public void calculations(){
-        //Getting the location of the mouse when it is released
+        //*Getting the location of the mouse when it is released
         PointerInfo info = MouseInfo.getPointerInfo();
         mousexpos = (int) info.getLocation().getX()-12;
         mouseypos = (int) info.getLocation().getY()-35;
-        //Finding the intersection point of the two points
+        //*Finding the intersection point of the two points
         intersectionx= mousexpos;
         intersectiony= projy+4;
-        //Finding the length of the two sides of the triangle formed by the intersection point and the projectile
+        //*Finding the length of the two sides of the triangle formed by the intersection point and the projectile
         adjacent = projx - intersectionx;
         opposite = mouseypos - intersectiony;
-        //Using trig to get the angle of the shot
+        //*Using trig to get the angle of the shot
         angle = Math.toDegrees(Math.atan(opposite/adjacent));
         System.out.println("Angle: " + angle);
-        //Using the hypotenuse to act as the initial velocity of the shot
+        //*Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
         ivelocity = hypotenuse/1.5;
+        System.out.println("Velocity: " + ivelocity);
 
-        //Conducts all the calculations for projectile elements
-        //Important to note that initial height is based on difference of projectile y-location and ground level
+        //*Conducts all the calculations for projectile elements
+        //*Important to note that initial height is based on difference of projectile y-location and ground level
         ho = ScreenHeight-PIXEL_SIZE-projy;
         vx = ivelocity * Math.cos(Math.toRadians(angle));
         vy = (-32 * t) + ivelocity*Math.sin(Math.toRadians(angle));
@@ -195,18 +219,18 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
     }
 
-    //The following methods are used to determine if a mouse action has been performed
+    //*The following methods are used to determine if a mouse action has been performed
     @Override
     public void mousePressed(java.awt.event.MouseEvent e) {
         System.out.println("Mouse Clicked");
-        //makes shoot false to reset previous projectile
+        //*makes shoot false to reset previous projectile
         shoot = false;  
     }
 
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
         calculations();
-        //checking to see if the shot is behind and lower than the ball
+        //*checking to see if the shot is behind and lower than the ball
         if(mousexpos<500 && mouseypos>ScreenHeight-300){
             shoot = true;
         }
