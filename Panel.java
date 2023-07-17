@@ -118,7 +118,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                 else{
                     t+=0.05;
                 }
-                
+                //*storing values into the xcoords and ycoords arraylist
                 hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
                 hx= ivelocity* t * Math.cos(Math.toRadians(angle));
 
@@ -135,9 +135,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                     tdiffs.add(tdiff);
                 }
             }
-
+            //*This part over hear draws the animation of the ball shooting (idk any more specifics I just did some random stuff and it worked)
             ticks++;
             for(int i = 0; i< xcoords.size(); i++){
+                //*this 2 changes the speed at which the projectile goes - eventually needs to be implemented with tdiff which is not being used as of now
                 if (ticks<(i*2)){
                     projx = xcoords.get(i);
                     projy = ycoords.get(i);
@@ -257,7 +258,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         if(shoot == false){
             calculations();
         }
-        //*checking to see if the shot is behind and lower than the ball
+        //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
         if(mousexpos<500 && mouseypos>ScreenHeight-300 && shoot == false){
             shoot = true;
         }
