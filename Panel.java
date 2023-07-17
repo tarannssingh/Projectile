@@ -107,6 +107,55 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         timer.start();
     }
     public void actionPerformed(ActionEvent e){
+        if(shoot == true){
+              //*find the initial pathing of the projectile as time increases and storing it in the arraylist
+             while(hy>0){
+
+                //* if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                if(ivelocity<200){
+                  t+=0.1;  
+                }
+                else{
+                    t+=0.05;
+                }
+                
+                hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+
+                int rhy = ScreenHeight - (int) hy;
+                int rhx =(int) hx;
+                xcoords.add(projx+rhx);
+                ycoords.add(rhy);
+                
+                //* storing values in tdiff by adding x and y difference from the next point
+                for(int i =0; i<xcoords.size()-1; i++){
+                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
+                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
+                    int tdiff = xdiff + ydiff;
+                    tdiffs.add(tdiff);
+                }
+            }
+
+            ticks++;
+            for(int i = 0; i< xcoords.size(); i++){
+                if (ticks<(i*2)){
+                    projx = xcoords.get(i);
+                    projy = ycoords.get(i);
+                    if(i==xcoords.size()-1){
+                        shoot = false;
+                        xcoords.clear();
+                        ycoords.clear();
+                        tdiffs.clear();
+                        t=0;
+                        projx = 500;
+                        projy = ScreenHeight - 300;
+                        ticks = 0;
+                    }
+                    break;
+                }
+            }
+            
+        }
         repaint();
     }
 
@@ -135,35 +184,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             g.fillOval(mousexpos,mouseypos,10,10);
             ///g.drawLine(mousexpos+5,mouseypos,mousexpos+5,0);
             ///g.drawLine(projx+5,projy+9,0,projy+9);
-            g.fillOval(mousexpos,projy+4,10,10);
+            //g.fillOval(mousexpos,projy+4,10,10);
 
-            //*find the initial pathing of the projectile as time increases and storing it in the arraylist
-            while(hy>0){
-
-                //* if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
-                if(ivelocity<200){
-                  t+=0.1;  
-                }
-                else{
-                    t+=0.05;
-                }
-                
-                hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
-                hx= ivelocity* t * Math.cos(Math.toRadians(angle));
-
-                int rhy = ScreenHeight - (int) hy;
-                int rhx =(int) hx;
-                xcoords.add(projx+rhx);
-                ycoords.add(rhy);
-                
-                //* storing values in tdiff by adding x and y difference from the next point
-                for(int i =0; i<xcoords.size()-1; i++){
-                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
-                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
-                    int tdiff = xdiff + ydiff;
-                    tdiffs.add(tdiff);
-                }
-            }   
+          
+           
             //*drawing the pathing of the projectile while it refreshes
             if(hy<0){
                 for(int i =0; i<xcoords.size(); i++){
@@ -181,6 +205,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             t=0;
             projx = 500;
             projy = ScreenHeight - 300;
+            ticks = 0; 
         }
 
 
@@ -222,20 +247,23 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     //*The following methods are used to determine if a mouse action has been performed
     @Override
     public void mousePressed(java.awt.event.MouseEvent e) {
-        System.out.println("Mouse Clicked");
+        //System.out.println("Mouse Clicked");
         //*makes shoot false to reset previous projectile
-        shoot = false;  
+        //shoot = false;    
     }
 
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
-        calculations();
+        if(shoot == false){
+            calculations();
+        }
         //*checking to see if the shot is behind and lower than the ball
-        if(mousexpos<500 && mouseypos>ScreenHeight-300){
+        if(mousexpos<500 && mouseypos>ScreenHeight-300 && shoot == false){
             shoot = true;
         }
         else{
             System.out.println("Invalid Shot");
+
         } 
     }
 
