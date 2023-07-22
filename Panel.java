@@ -108,41 +108,46 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     }
     public void actionPerformed(ActionEvent e){
         if(shoot == true){
-              //*find the initial pathing of the projectile as time increases and storing it in the arraylist
-             while(hy>0){
 
-                //* if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
-                if(ivelocity<200){
-                  t+=0.1;  
-                }
-                else{
-                    t+=0.05;
-                }
-                //*storing values into the xcoords and ycoords arraylist
-                hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
-                hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+            if(projy == ScreenHeight -300){
+                //*find the initial pathing of the projectile as time increases and storing it in the arraylist
+                while(hy>0){
 
-                int rhy = ScreenHeight - (int) hy;
-                int rhx =(int) hx;
-                xcoords.add(projx+rhx);
-                ycoords.add(rhy);
-                
-                //* storing values in tdiff by adding x and y difference from the next point
-                for(int i =0; i<xcoords.size()-1; i++){
-                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
-                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
-                    int tdiff = xdiff + ydiff;
-                    tdiffs.add(tdiff);
+                    //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                    if(ivelocity<200){
+                    t+=0.1;  
+                    }
+                    else{
+                        t+=0.05;
+                    }
+                    //*storing values into the xcoords and ycoords arraylist
+                    hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                    hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+
+                    int rhy = ScreenHeight - (int) hy;
+                    int rhx =(int) hx;
+                    xcoords.add(projx+rhx);
+                    ycoords.add(rhy);
+                    
+                    //* storing values in tdiff by adding x and y difference from the next point
+                    /* 
+                    for(int i =0; i<xcoords.size()-1; i++){
+                        int xdiff = xcoords.get(i+1)-xcoords.get(i);
+                        int ydiff = ycoords.get(i+1)-ycoords.get(i);
+                        int tdiff = xdiff + ydiff;
+                        tdiffs.add(tdiff);
+                    }
+                    */
                 }
             }
-            //*This part over hear draws the animation of the ball shooting (idk any more specifics I just did some random stuff and it worked)
+            //*This part draws the animation of the ball shooting (idk any more specifics I just did some random stuff and it worked)
             ticks++;
             for(int i = 0; i< xcoords.size(); i++){
                 //*this 2 changes the speed at which the projectile goes - eventually needs to be implemented with tdiff which is not being used as of now
                 if (ticks<(i*2)){
                     projx = xcoords.get(i);
                     projy = ycoords.get(i);
-                    if(i==xcoords.size()-1){
+                    if(i==xcoords.size() || i==xcoords.size()-1){
                         shoot = false;
                         xcoords.clear();
                         ycoords.clear();
@@ -198,20 +203,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                 
             }
         }
-        //*makes sure to clear everything so new projectile can be drawn
-        if(shoot == false){
-            xcoords.clear();
-            ycoords.clear();
-            tdiffs.clear();
-            t=0;
-            projx = 500;
-            projy = ScreenHeight - 300;
-            ticks = 0; 
-        }
-
-
-        
-
     }
 
     public void calculations(){
@@ -259,7 +250,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             calculations();
         }
         //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
-        if(mousexpos<500 && mouseypos>ScreenHeight-300 && shoot == false){
+        if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300){
             shoot = true;
         }
         else{
