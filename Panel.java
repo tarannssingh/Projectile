@@ -206,10 +206,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     }
 
     public void calculations(){
-        //*Getting the location of the mouse when it is released
-        PointerInfo info = MouseInfo.getPointerInfo();
-        mousexpos = (int) info.getLocation().getX()-12;
-        mouseypos = (int) info.getLocation().getY()-35;
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
         intersectiony= projy+4;
@@ -231,9 +227,13 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         vy = (-32 * t) + ivelocity*Math.sin(Math.toRadians(angle));
         hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
         hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+    }
 
-        
-
+    public void getmouseinfo(){
+       //*Getting the location of the mouse when it is released
+        PointerInfo info = MouseInfo.getPointerInfo();
+        mousexpos = (int) info.getLocation().getX()-12;
+        mouseypos = (int) info.getLocation().getY()-35; 
     }
 
     //*The following methods are used to determine if a mouse action has been performed
@@ -247,15 +247,16 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
         if(shoot == false){
-            calculations();
+            getmouseinfo();
         }
         //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
-        if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300){
+        if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
+            calculations();
             shoot = true;
+            ticks = 0;
         }
         else{
             System.out.println("Invalid Shot");
-
         } 
     }
 
