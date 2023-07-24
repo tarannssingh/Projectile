@@ -66,6 +66,16 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double hy;
     static double ho;
 
+    //*Variables for air resistance
+    static double weight = 64;
+    static double airResistance = 0.25;
+    static double fraction = 0;
+    static double gravity = -32;
+    static double mass = 0;
+    static double coef1 = 0;
+    static double coef2 = 0;
+
+
     //*Used to store the location of the projectile pathing
     ArrayList<Integer> xcoords = new ArrayList<Integer>();
     ArrayList<Integer> ycoords = new ArrayList<Integer>();
@@ -115,7 +125,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
                     //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
                     if(ivelocity<200){
-                    t+=0.1;  
+                        t+=0.1;  
                     }
                     else{
                         t+=0.05;
@@ -229,6 +239,30 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         hx= ivelocity* t * Math.cos(Math.toRadians(angle));
     }
 
+    public void acalculations(){
+        //*Finding the intersection point of the two points
+        intersectionx= mousexpos;
+        intersectiony= projy+4;
+        //*Finding the length of the two sides of the triangle formed by the intersection point and the projectile
+        adjacent = projx - intersectionx;
+        opposite = mouseypos - intersectiony;
+        //*Using trig to get the angle of the shot
+        angle = Math.toDegrees(Math.atan(opposite/adjacent));
+        System.out.println("Angle: " + angle);
+        //*Using the hypotenuse to act as the initial velocity of the shot
+        hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
+        ivelocity = hypotenuse/1.5;
+        System.out.println("Velocity: " + ivelocity);
+
+        mass = weight / Math.abs(gravity);
+        fraction = airResistance / mass;
+        coef1 = gravity * (1/fraction);
+        coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
+        vy = coef1 + coef2 * Math.pow(2.71, (t*fraction)*-1);
+        ho = ScreenHeight-PIXEL_SIZE-projy;
+        hy = coef1*t - (1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1) + ho;
+    }
+
     public void getmouseinfo(){
        //*Getting the location of the mouse when it is released
         PointerInfo info = MouseInfo.getPointerInfo();
@@ -252,6 +286,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
         if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
             calculations();
+            //acalculations();
             shoot = true;
             ticks = 0;
         }
