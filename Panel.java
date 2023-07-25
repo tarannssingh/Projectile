@@ -68,12 +68,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
     //*Variables for air resistance
     static double weight = 64;
-    static double airResistance = 0.25;
-    static double fraction = 0;
+    static double airResistance = -0.1;
+    static double fraction;
     static double gravity = -32;
-    static double mass = 0;
-    static double coef1 = 0;
-    static double coef2 = 0;
+    static double mass;
+    static double coef1;
+    static double coef2;
+    static double fraction2;
+    static double coef3;
 
 
     //*Used to store the location of the projectile pathing
@@ -131,8 +133,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                         t+=0.05;
                     }
                     //*storing values into the xcoords and ycoords arraylist
-                    hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
-                    hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+                    //! Uncomments to work without air resistance
+                    //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                    //hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+                    
+                    //* With air resistance 
+                    //! Comment following 2 lines to work without air resistance
+                    hy = coef1*t - ((1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1)) + ho + 1/fraction * coef2;
+                    hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
 
                     int rhy = ScreenHeight - (int) hy;
                     int rhx =(int) hx;
@@ -260,7 +268,12 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
         vy = coef1 + coef2 * Math.pow(2.71, (t*fraction)*-1);
         ho = ScreenHeight-PIXEL_SIZE-projy;
-        hy = coef1*t - (1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1) + ho;
+        hy = coef1*t - (1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1) + ho + 1/fraction * coef2;
+
+        fraction2 = (1/mass) * -(airResistance);
+        coef3 = ivelocity * Math.cos(Math.toRadians(angle));
+        vx = coef3 * Math.pow(2.71, (t*fraction2)*-1);
+        hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
     }
 
     public void getmouseinfo(){
@@ -285,8 +298,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         }
         //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
         if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
-            calculations();
-            //acalculations();
+            //! Change for air resistance or not
+            //calculations();
+            acalculations();
             shoot = true;
             ticks = 0;
         }
