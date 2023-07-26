@@ -165,7 +165,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                 if (ticks<(i*2)){
                     projx = xcoords.get(i);
                     projy = ycoords.get(i);
-                    if(i==xcoords.size() || i==xcoords.size()-1){
+                    if(i==xcoords.size()-1){
                         shoot = false;
                         xcoords.clear();
                         ycoords.clear();
@@ -214,6 +214,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
            
             //*drawing the pathing of the projectile while it refreshes
             if(hy<0){
+                System.out.println("Size: " + xcoords.size());
                 for(int i =0; i<xcoords.size(); i++){
                     g.setColor(Color.white);
                     g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
