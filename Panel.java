@@ -77,6 +77,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double fraction2;
     static double coef3;
 
+    static int i = 0;
+
+
 
     //*Used to store the location of the projectile pathing
     ArrayList<Integer> xcoords = new ArrayList<Integer>();
@@ -119,66 +122,28 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         timer.start();
     }
     public void actionPerformed(ActionEvent e){
-        if(shoot == true){
-
-            if(projy == ScreenHeight -300){
-                //*find the initial pathing of the projectile as time increases and storing it in the arraylist
-                while(hy>0){
-
-                    //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
-                    if(ivelocity<200){
-                        t+=0.1;  
-                    }
-                    else{
-                        t+=0.05;
-                    }
-                    //*storing values into the xcoords and ycoords arraylist
-                    //! Uncomments to work without air resistance
-                    //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
-                    //hx= ivelocity* t * Math.cos(Math.toRadians(angle));
-                    
-                    //* With air resistance 
-                    //! Comment following 2 lines to work without air resistance
-                    hy = coef1*t - ((1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1)) + ho + 1/fraction * coef2;
-                    hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
-
-                    int rhy = ScreenHeight - (int) hy;
-                    int rhx =(int) hx;
-                    xcoords.add(projx+rhx);
-                    ycoords.add(rhy);
-                    
-                    //* storing values in tdiff by adding x and y difference from the next point
-                    /* 
-                    for(int i =0; i<xcoords.size()-1; i++){
-                        int xdiff = xcoords.get(i+1)-xcoords.get(i);
-                        int ydiff = ycoords.get(i+1)-ycoords.get(i);
-                        int tdiff = xdiff + ydiff;
-                        tdiffs.add(tdiff);
-                    }
-                    */
-                }
-            }
+        if(shoot == true){  
             //*This part draws the animation of the ball shooting (idk any more specifics I just did some random stuff and it worked)
             ticks++;
-            for(int i = 0; i< xcoords.size(); i++){
-                //*this 2 changes the speed at which the projectile goes - eventually needs to be implemented with tdiff which is not being used as of now
-                if (ticks<(i*2)){
-                    projx = xcoords.get(i);
-                    projy = ycoords.get(i);
-                    if(i==xcoords.size()-1){
-                        shoot = false;
-                        xcoords.clear();
-                        ycoords.clear();
-                        tdiffs.clear();
-                        t=0;
-                        projx = 500;
-                        projy = ScreenHeight - 300;
-                        ticks = 0;
-                    }
-                    break;
+            i++;
+            //*this 2 changes the speed at which the projectile goes - eventually needs to be implemented with tdiff which is not being used as of now
+            System.out.println("i: " + i);
+            System.out.println("Size: "+ xcoords.size());
+            if (ticks<=(i)){
+                System.out.println("Getting xcoords/ycoords");
+                projx = xcoords.get(i);
+                projy = ycoords.get(i);
+                if(i==xcoords.size()-1){
+                    shoot = false;
+                    xcoords.clear();
+                    ycoords.clear();
+                    tdiffs.clear();
+                    t=0;
+                    projx = 500;
+                    projy = ScreenHeight - 300;
+                    ticks = 0;
                 }
-            }
-            
+            }  
         }
         repaint();
     }
@@ -214,7 +179,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
            
             //*drawing the pathing of the projectile while it refreshes
             if(hy<0){
-                System.out.println("Size: " + xcoords.size());
+                //System.out.println("Size: " + xcoords.size());
                 for(int i =0; i<xcoords.size(); i++){
                     g.setColor(Color.white);
                     g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
@@ -277,6 +242,46 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
     }
 
+    public void alist(){
+        if(projy == ScreenHeight -300){
+            //*find the initial pathing of the projectile as time increases and storing it in the arraylist
+            while(hy>0){
+
+                //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                if(ivelocity<200){
+                    t+=0.1;  
+                }
+                else{
+                    t+=0.05;
+                }
+                //*storing values into the xcoords and ycoords arraylist
+                //! Uncomments to work without air resistance
+                //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                //hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+                    
+                //* With air resistance 
+                //! Comment following 2 lines to work without air resistance
+                hy = coef1*t - ((1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1)) + ho + 1/fraction * coef2;
+                hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
+
+                int rhy = ScreenHeight - (int) hy;
+                int rhx =(int) hx;
+                xcoords.add(projx+rhx);
+                ycoords.add(rhy);
+                    
+                //* storing values in tdiff by adding x and y difference from the next point
+                /* 
+                for(int i =0; i<xcoords.size()-1; i++){
+                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
+                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
+                    int tdiff = xdiff + ydiff;
+                    tdiffs.add(tdiff);
+                }
+                */
+            }
+        }
+    }
+
     public void getmouseinfo(){
        //*Getting the location of the mouse when it is released
         PointerInfo info = MouseInfo.getPointerInfo();
@@ -303,6 +308,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             //calculations();
             acalculations();
             shoot = true;
+            alist();
             ticks = 0;
         }
         else{
