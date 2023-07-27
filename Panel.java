@@ -22,7 +22,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static int ScreenWidth; 
     static int ScreenHeight;
 
-    //*Basic variables that are use dto determine if projectile is shoot and if cannon is moved 
+    //*Basic variables that are use to determine if the projectile is shoot and if cannon is moved 
     static boolean shoot= false;
     boolean moveRight= false;
     boolean moveLeft= false;
@@ -53,10 +53,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double adjacent;
     static double hypotenuse;
 
-    //*Variables used to allow for ticks to function (defined later)
+    //*Variables used to allow for delay to function (defined later)
     int DELAY = 5;
     Timer timer;
-    int ticks=0;
 
     //*Variables required for projectile calculations
     static double t= 0.0; 
@@ -77,15 +76,16 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double fraction2;
     static double coef3;
 
+    //*Variable used to determine the iteration of the action performed method - used to update position of projectile via arraylists xcoords and ycoords
+    static int j = 0;
 
     //*Used to store the location of the projectile pathing
-    ArrayList<Integer> xcoords = new ArrayList<Integer>();
-    ArrayList<Integer> ycoords = new ArrayList<Integer>();
-    //*tdiffs is a method to store the distance between each component of the projectile - may be useful later when it comes to drawing the projectile due to time
-    ArrayList<Integer> tdiffs = new ArrayList<Integer>();
+    static ArrayList<Integer> xcoords = new ArrayList<Integer>();
+    static ArrayList<Integer> ycoords = new ArrayList<Integer>();
     
-
-
+    //*tdiffs is a method to store the distance between each component of the projectile - may be useful later when it comes to drawing the projectile due to time
+    static ArrayList<Integer> tdiffs = new ArrayList<Integer>();
+    
 
     public static void main(String[] args) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         //*creates a Frame object using Frame.java
@@ -101,15 +101,13 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         projx = 500;
         projy = ScreenHeight - 300;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
-        frame.addMouseListener(new Panel());
-        
-        
+        frame.addMouseListener(new Panel());     
     }
 
     /* 
      *The following three methods allow for performed actions that must be redrawn using graphics to be seen
-     *This is accomplished using the use of ticks which is a 5 millisecond time period until which the method
-     *repaint() is called and the graphics are redrawn
+     *This is accomplished using the use of a timer and delay which is a 5 millisecond time period until which the method
+     *actionPerformed() and repaint() is called and the graphics are redrawn
     */
     public Panel(){
         start();
@@ -118,73 +116,32 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         timer = new Timer(DELAY,this);
         timer.start();
     }
+    //* This method is called every 5 milliseconds - it is used to update the position of the projectile using the external variable "j" which points to the location in the arraylist
     public void actionPerformed(ActionEvent e){
         if(shoot == true){
-
-            if(projy == ScreenHeight -300){
-                //*find the initial pathing of the projectile as time increases and storing it in the arraylist
-                while(hy>0){
-
-                    //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
-                    if(ivelocity<200){
-                        t+=0.1;  
-                    }
-                    else{
-                        t+=0.05;
-                    }
-                    //*storing values into the xcoords and ycoords arraylist
-                    //! Uncomments to work without air resistance
-                    //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
-                    //hx= ivelocity* t * Math.cos(Math.toRadians(angle));
-                    
-                    //* With air resistance 
-                    //! Comment following 2 lines to work without air resistance
-                    hy = coef1*t - ((1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1)) + ho + 1/fraction * coef2;
-                    hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
-
-                    int rhy = ScreenHeight - (int) hy;
-                    int rhx =(int) hx;
-                    xcoords.add(projx+rhx);
-                    ycoords.add(rhy);
-                    
-                    //* storing values in tdiff by adding x and y difference from the next point
-                    /* 
-                    for(int i =0; i<xcoords.size()-1; i++){
-                        int xdiff = xcoords.get(i+1)-xcoords.get(i);
-                        int ydiff = ycoords.get(i+1)-ycoords.get(i);
-                        int tdiff = xdiff + ydiff;
-                        tdiffs.add(tdiff);
-                    }
-                    */
+            //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
+            if(xcoords.size()>0){
+                j++;
+                projx = xcoords.get(j);
+                projy = ycoords.get(j);
+                //*This clears all required variables and things at the end of a shoot (determined when at the end of an arraylist) to prepare for the next shoot
+                if(j==xcoords.size()-1){
+                    shoot = false;
+                    System.out.println("CLEARED");
+                    xcoords.clear();
+                    ycoords.clear();
+                    tdiffs.clear();
+                    t=0;
+                    projx = 500;
+                    projy = ScreenHeight - 300;
+                    j=0;
                 }
-            }
-            //*This part draws the animation of the ball shooting (idk any more specifics I just did some random stuff and it worked)
-            ticks++;
-            for(int i = 0; i< xcoords.size(); i++){
-                //*this 2 changes the speed at which the projectile goes - eventually needs to be implemented with tdiff which is not being used as of now
-                if (ticks<(i*2)){
-                    projx = xcoords.get(i);
-                    projy = ycoords.get(i);
-                    if(i==xcoords.size()-1){
-                        shoot = false;
-                        xcoords.clear();
-                        ycoords.clear();
-                        tdiffs.clear();
-                        t=0;
-                        projx = 500;
-                        projy = ScreenHeight - 300;
-                        ticks = 0;
-                    }
-                    break;
-                }
-            }
-            
+            }    
         }
+        //* Called every 5 milliseconds to repaint graphics method
         repaint();
     }
-
-
-    
+  
     //*Graphics initillizer that is used to call methods that draw the graphics
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -206,24 +163,16 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             g.fillOval(projx,projy,PIXEL_SIZE,PIXEL_SIZE);
             //*seeing the intersection triangle
             g.fillOval(mousexpos,mouseypos,10,10);
-            ///g.drawLine(mousexpos+5,mouseypos,mousexpos+5,0);
-            ///g.drawLine(projx+5,projy+9,0,projy+9);
-            //g.fillOval(mousexpos,projy+4,10,10);
 
-          
-           
-            //*drawing the pathing of the projectile while it refreshes
-            if(hy<0){
-                System.out.println("Size: " + xcoords.size());
-                for(int i =0; i<xcoords.size(); i++){
-                    g.setColor(Color.white);
-                    g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
-                }
-                
+            //*drawing the pathing of the projectile using the arraylists
+            for(int i =0; i<xcoords.size(); i++){
+                g.setColor(Color.white);
+                g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
             }
         }
     }
 
+    //*calculation of all relevant variables without air resistance
     public void calculations(){
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
@@ -248,6 +197,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         hx= ivelocity* t * Math.cos(Math.toRadians(angle));
     }
 
+    //*calculation of all relevant variables with air resistance
     public void acalculations(){
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
@@ -277,6 +227,46 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
     }
 
+    //* Called at the begining of every new shot to fill the array list with projetile locations
+    public void alist(){
+        if(projy == ScreenHeight -300){
+            //*find the initial pathing of the projectile as time increases and storing it in the arraylist
+            while(hy>0){
+                //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                if(ivelocity<200){
+                    t+=0.1;  
+                }
+                else{
+                    t+=0.05;
+                }
+                //*Storing values into the xcoords and ycoords arraylist
+                //! Uncomments to work without air resistance
+                //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
+                //hx= ivelocity* t * Math.cos(Math.toRadians(angle));
+                    
+                //* With air resistance 
+                //! Comment following 2 lines to work without air resistance
+                hy = coef1*t - ((1/fraction * coef2) * Math.pow(2.71, (t*fraction)*-1)) + ho + 1/fraction * coef2;
+                hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
+
+                int rhy = ScreenHeight - (int) hy;
+                int rhx =(int) hx;
+                xcoords.add(projx+rhx);
+                ycoords.add(rhy);
+                    
+                //* storing values in tdiff by adding x and y difference from the next point
+                /* 
+                for(int i =0; i<xcoords.size()-1; i++){
+                    int xdiff = xcoords.get(i+1)-xcoords.get(i);
+                    int ydiff = ycoords.get(i+1)-ycoords.get(i);
+                    int tdiff = xdiff + ydiff;
+                    tdiffs.add(tdiff);
+                }
+                */
+            }
+        }
+    }
+
     public void getmouseinfo(){
        //*Getting the location of the mouse when it is released
         PointerInfo info = MouseInfo.getPointerInfo();
@@ -286,24 +276,21 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
     //*The following methods are used to determine if a mouse action has been performed
     @Override
-    public void mousePressed(java.awt.event.MouseEvent e) {
-        //System.out.println("Mouse Clicked");
-        //*makes shoot false to reset previous projectile
-        //shoot = false;    
-    }
+    public void mousePressed(java.awt.event.MouseEvent e) {}
 
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
         if(shoot == false){
             getmouseinfo();
         }
-        //*checking to see if the shot is behind and lower than the ball and that ball is not already in the air
+        //*Checking to see if the shot is behind and lower than the ball and that ball is not already in the air
         if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
             //! Change for air resistance or not
             //calculations();
             acalculations();
+            //*Called to fill arraylists with new calculations
+            alist();
             shoot = true;
-            ticks = 0;
         }
         else{
             System.out.println("Invalid Shot");
