@@ -56,6 +56,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     //*Variables used to allow for delay to function (defined later)
     int DELAY = 5;
     Timer timer;
+    Random random;
 
     //*Variables required for projectile calculations
     static double t= 0.0; 
@@ -66,8 +67,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double ho;
 
     //*Variables for air resistance
-    static double weight = 64;
+    static double weight = 70;
     static double airResistance = -0.1;
+    static int direction;
     static double fraction;
     static double gravity = -32;
     static double mass;
@@ -78,6 +80,11 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
     //*Variable used to determine the iteration of the action performed method - used to update position of projectile via arraylists xcoords and ycoords
     static int j = 0;
+    //*Used to control the iteration of j and therfore slowdown the speed of the projectile by determining how many refreshes to wait */
+    static int w = 0;
+
+    //*Used to count number of shots taken
+    static int numshots = 0;
 
     //*Used to store the location of the projectile pathing
     static ArrayList<Integer> xcoords = new ArrayList<Integer>();
@@ -86,6 +93,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     //*tdiffs is a method to store the distance between each component of the projectile - may be useful later when it comes to drawing the projectile due to time
     static ArrayList<Integer> tdiffs = new ArrayList<Integer>();
     
+    //* Initializing label outside of main method to access it from ActionPerformed
+    final static JLabel wind = new JLabel("Wind: " + airResistance);
 
     public static void main(String[] args) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         //*creates a Frame object using Frame.java
@@ -101,7 +110,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         projx = 500;
         projy = ScreenHeight - 300;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
-        frame.addMouseListener(new Panel());     
+        frame.addMouseListener(new Panel());
+        
+        //* Adding wind to north of screeen
+        frame.add(wind, BorderLayout.NORTH);
     }
 
     /* 
@@ -110,6 +122,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
      *actionPerformed() and repaint() is called and the graphics are redrawn
     */
     public Panel(){
+        random = new Random();
         start();
     }
     public void start(){
@@ -119,15 +132,21 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     //* This method is called every 5 milliseconds - it is used to update the position of the projectile using the external variable "j" which points to the location in the arraylist
     public void actionPerformed(ActionEvent e){
         if(shoot == true){
+            //*Displaying updated wind value
+            wind.setText("Wind: " + airResistance);
+
             //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
             if(xcoords.size()>0){
-                j++;
+                //*This if statement waits every 3 times the actionPerformed method is called to increment j, this slows down the projectiles animation */
+                if(w%3==0){
+                    j++;
+                }
+                w++;
                 projx = xcoords.get(j);
                 projy = ycoords.get(j);
                 //*This clears all required variables and things at the end of a shoot (determined when at the end of an arraylist) to prepare for the next shoot
                 if(j==xcoords.size()-1){
                     shoot = false;
-                    System.out.println("CLEARED");
                     xcoords.clear();
                     ycoords.clear();
                     tdiffs.clear();
@@ -135,6 +154,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                     projx = 500;
                     projy = ScreenHeight - 300;
                     j=0;
+                    w=0;
                 }
             }    
         }
@@ -182,11 +202,11 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         opposite = mouseypos - intersectiony;
         //*Using trig to get the angle of the shot
         angle = Math.toDegrees(Math.atan(opposite/adjacent));
-        System.out.println("Angle: " + angle);
+        //System.out.println("Angle: " + angle);
         //*Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
         ivelocity = hypotenuse/1.5;
-        System.out.println("Velocity: " + ivelocity);
+        //System.out.println("Velocity: " + ivelocity);
 
         //*Conducts all the calculations for projectile elements
         //*Important to note that initial height is based on difference of projectile y-location and ground level
@@ -199,6 +219,17 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
 
     //*calculation of all relevant variables with air resistance
     public void acalculations(){
+        //* Used to randomize air resistance in either direction every 2 shots (variable direction determines sign of resistance)
+        if(numshots%2==0){
+            direction = (int) (Math.random()*2);
+            if(direction%2==0){
+                 airResistance = -1*(Math.random()*0.1);
+            }
+            else{
+                airResistance = (Math.random()*0.1);
+            }
+        }
+
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
         intersectiony= projy+4;
@@ -207,11 +238,11 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         opposite = mouseypos - intersectiony;
         //*Using trig to get the angle of the shot
         angle = Math.toDegrees(Math.atan(opposite/adjacent));
-        System.out.println("Angle: " + angle);
+        //System.out.println("Angle: " + angle);
         //*Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
         ivelocity = hypotenuse/1.5;
-        System.out.println("Velocity: " + ivelocity);
+        //System.out.println("Velocity: " + ivelocity);
 
         mass = weight / Math.abs(gravity);
         fraction = airResistance / mass;
@@ -232,13 +263,17 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         if(projy == ScreenHeight -300){
             //*find the initial pathing of the projectile as time increases and storing it in the arraylist
             while(hy>0){
-                //*if initial velocity is greater than 200, more points (projectile locations) are added to the arraylist
+                //*Increments t differently to add more or less points to the arraylist based on the velocity of the shot
                 if(ivelocity<200){
                     t+=0.1;  
+                }
+                else if(ivelocity<300){
+                    t+=0.075;
                 }
                 else{
                     t+=0.05;
                 }
+
                 //*Storing values into the xcoords and ycoords arraylist
                 //! Uncomments to work without air resistance
                 //hy = (-16*Math.pow(t,2))+(ivelocity*t*Math.sin(Math.toRadians(angle)))+ho;
@@ -291,6 +326,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
             //*Called to fill arraylists with new calculations
             alist();
             shoot = true;
+            numshots++;
         }
         else{
             System.out.println("Invalid Shot");
