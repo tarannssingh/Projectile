@@ -21,6 +21,7 @@ import java.lang.Math;
 //*makes sure to add Action Listener to eventually allow us to compute user action on the screen
 public class Panel extends JPanel implements MouseListener, ActionListener, ChangeListener{
 
+        //*************************************************************************************************************************************VARIABLES************************************************************************************************//
     //*Initiallizes the size of a larger pixel that is easier to work with
     static int PIXEL_SIZE = 20;
     static int ScreenWidth; 
@@ -72,10 +73,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     //*Variables for air resistance
     static double weight = 30;
-    static double airResistance;
+    static double airResistance =0;
     static int direction;
     static double fraction;
-    static double gravity = -32;
+    static double gravity;
     static double mass;
     static double coef1;
     static double coef2;
@@ -102,6 +103,15 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     static JSlider slider  = new JSlider(JSlider.HORIZONTAL, 1, 6, 3);
 
+    //*Used during planet randomization
+    static int world;
+    static boolean earth = false;
+    static boolean moon = false;
+    static boolean mars = false;
+    static boolean jupiter = false;
+
+        //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
+    //*Main method that is used to run the program
     public static void main(String[] args) throws IOException, LineUnavailableException{
         //*creates a Frame object using Frame.java
         Frame frame = new Frame();
@@ -120,6 +130,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         
         //*Adding label and slider at the top of the screen to allow user to change wight of projectile
         JLabel label = new JLabel("Weight of Projectile: ");
+        label.setForeground(new Color(255,255,255));
         Panel p = new Panel();
         p.setOpaque(true);
         slider.setSize(20, 20);
@@ -135,8 +146,32 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         p.add(wind, BorderLayout.NORTH);
         wind();
 
+        planet();
+        if(earth == true){
+            JLabel planet = new JLabel("|    Planet: Earth");
+            planet.setForeground(new Color(255,255,255));
+            p.add(planet, BorderLayout.NORTH);
+        }
+        else if(moon == true){
+            JLabel planet = new JLabel("|    Planet: Moon");
+            planet.setForeground(new Color(255,255,255));
+            p.add(planet, BorderLayout.NORTH);
+        }
+        else if(mars == true){
+            JLabel planet = new JLabel("|    Planet: Mars");
+            planet.setForeground(new Color(255,255,255));
+            p.add(planet, BorderLayout.NORTH);
+        }
+        else{
+            JLabel planet = new JLabel("|    Planet: Jupiter");
+            planet.setForeground(new Color(255,255,255));
+            p.add(planet, BorderLayout.NORTH);
+        }
+
+
     }
 
+        //*************************************************************************************************************************************RECALLED METHODS************************************************************************************************//
     /* 
      *The following three methods allow for performed actions that must be redrawn using graphics to be seen
      *This is accomplished using the use of a timer and delay which is a 5 millisecond time period until which the method
@@ -154,6 +189,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     public void actionPerformed(ActionEvent e){
         //*Displaying updated wind value
         wind.setText("Wind: " + airResistance);
+        wind.setForeground(new Color(255,255,255));
         
         if(shoot == true){
             //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
@@ -184,7 +220,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //* Called every 5 milliseconds to repaint graphics method
         repaint();
     }
-  
+
+        //*************************************************************************************************************************************GRAPHICS METHODS************************************************************************************************//
     //*Graphics initillizer that is used to call methods that draw the graphics
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -193,13 +230,83 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     
     //*The method that draws the actual graphics
     public void draw(Graphics g){
-        //*bg
-        g.setColor(new Color(173,216,230));
-        g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-        //*ground
-        g.setColor(new Color(0,100,0));
-        g.fillRect(0,ScreenHeight-90,ScreenWidth,90); 
+        //* Drawing background according to planet
+        if(moon == true){
+            //*bg
+            g.setColor(new Color(0,0,0));
+            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+            //*ground
+            g.setColor(new Color(218,217,215));
+            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+        }
+        else if(earth == true){
+            //*bg
+            g.setColor(new Color(173,216,230));
+            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+            //*ground
+            g.setColor(new Color(0,100,0));
+            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+        }
+        else if(mars == true){
+            //*bg
+            g.setColor(new Color(0,0,0));
+            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+            //*ground
+            g.setColor(new Color(193,68,14));
+            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+        }
+        else{
+            //*bg
+            g.setColor(new Color(201,144,57));
+            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+            //*ground
+            g.setColor(new Color(165,145,134));
+            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+        }
+
+        //*Platform
+        g.setColor(new Color(136,140,141));
+        g.fillRect(ScreenWidth/7,ScreenHeight-160,200,80);
+
+        //*Cannon
+
+        //*Body
+        g.setColor(new Color(133,94,66));
+        g.fillRect(ScreenWidth/7+50,ScreenHeight-190,100,10);
+        g.fillRect(ScreenWidth/7+68,ScreenHeight-195,65,3);
+
+        //*Wheel 1
+        //Outer Brown Circle
+        g.setColor(new Color(133,94,66));
+        g.fillOval(ScreenWidth/7+30,ScreenHeight-200,40,40);
+        g.setColor(new Color(0,0,0));
+        //Inner Black Circle
+        g.fillOval(ScreenWidth/7+35,ScreenHeight-195,30,30);
+        g.setColor(new Color(133,94,66));
+        //Inner Brown Circle
+        g.fillOval(ScreenWidth/7+45,ScreenHeight-185,10,10);
+        //Spokes
+        //Verticle
+        g.fillRect(ScreenWidth/7+49,ScreenHeight-200,2,35);
+        //Horizontal
+        g.fillRect(ScreenWidth/7+33,ScreenHeight-182,35,2);
         
+        //*Wheel 2
+        //Outer Brown Circle
+        g.fillOval(ScreenWidth/7+130,ScreenHeight-200,40,40);
+        g.setColor(new Color(0,0,0));
+        //Inner Black Circle
+        g.fillOval(ScreenWidth/7+135,ScreenHeight-195,30,30);
+        g.setColor(new Color(133,94,66));
+        //Inner Brown Circle
+        g.fillOval(ScreenWidth/7+145,ScreenHeight-185,10,10);
+        //Spokes
+        //Verticle
+        g.fillRect(ScreenWidth/7+149,ScreenHeight-200,2,35);
+        //Horizontal
+        g.fillRect(ScreenWidth/7+133,ScreenHeight-182,35,2);
+
+
         if(shoot == true){
             //*projectile (if shot)
             g.setColor(Color.red);
@@ -215,6 +322,46 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         }
     }
 
+        //*************************************************************************************************************************************RANDOMIZATION METHODS************************************************************************************************//
+    public static void wind(){
+        //* Used to randomize air resistance in either direction every 2 shots (variable direction determines sign of resistance)
+        if(numshots%2==0){
+            direction = (int) (Math.random()*2);
+            if(direction%2==0){
+                 airResistance = -1*(Math.random()*0.1);
+            }
+            else{
+                airResistance = (Math.random()*0.1);
+            }
+        }
+    }
+
+    //* Randomizing planet selected
+    public static void planet(){
+         world = (int) (Math.random()*4);
+        if(world==0){
+            //* Earth gravity
+            gravity = -32;
+            earth = true;
+        }
+        else if(world==1){
+            //* Moon gravity
+            gravity = -5.3;
+            moon = true;
+        }
+        else if(world==2){
+            //* Mars gravity
+            gravity = -12.2;
+            mars = true;
+        }
+        else{
+            //* Jupiter gravity
+            gravity = -80;
+            jupiter = true;
+        }
+    }
+
+        //*************************************************************************************************************************************CALCULATION METHODS************************************************************************************************//
     //*calculation of all relevant variables without air resistance
     public void calculations(){
         //*Finding the intersection point of the two points
@@ -240,24 +387,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         hx= ivelocity* t * Math.cos(Math.toRadians(angle));
     }
 
-    public static void wind(){
-        //* Used to randomize air resistance in either direction every 2 shots (variable direction determines sign of resistance)
-        if(numshots%2==0){
-            direction = (int) (Math.random()*2);
-            if(direction%2==0){
-                 airResistance = -1*(Math.random()*0.1);
-            }
-            else{
-                airResistance = (Math.random()*0.1);
-            }
-        }
-    }
-
-    
     
     //*calculation of all relevant variables with air resistance
     public void acalculations(){
-
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
         intersectiony= projy+4;
@@ -286,6 +418,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         hx = -1*(coef3 * (1/fraction2)) * Math.pow(2.71, (t*fraction2)*-1)+coef3 * (1/fraction2);
     }
 
+        //*************************************************************************************************************************************INITIALIZATION METHODS************************************************************************************************//
     //* Called at the begining of every new shot to fill the array list with projetile locations
     public void alist(){
         if(projy == ScreenHeight -300){
@@ -337,6 +470,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         mouseypos = (int) info.getLocation().getY()-35; 
     }
 
+        //*************************************************************************************************************************************LISTENER METHODS************************************************************************************************//
     //*The following methods are used to determine if a mouse action has been performed
     @Override
     public void mousePressed(java.awt.event.MouseEvent e) {}
