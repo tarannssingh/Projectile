@@ -3,6 +3,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import java.util.Random;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -12,10 +15,11 @@ import java.lang.Math;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.event.ChangeEvent;
 import java.lang.Math;
 
 //*makes sure to add Action Listener to eventually allow us to compute user action on the screen
-public class Panel extends JPanel implements MouseListener, ActionListener{
+public class Panel extends JPanel implements MouseListener, ActionListener, ChangeListener{
 
     //*Initiallizes the size of a larger pixel that is easier to work with
     static int PIXEL_SIZE = 20;
@@ -67,8 +71,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     static double ho;
 
     //*Variables for air resistance
-    static double weight = 70;
-    static double airResistance = -0.1;
+    static double weight = 30;
+    static double airResistance;
     static int direction;
     static double fraction;
     static double gravity = -32;
@@ -96,7 +100,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     //* Initializing label outside of main method to access it from ActionPerformed
     final static JLabel wind = new JLabel("Wind: " + airResistance);
 
-    public static void main(String[] args) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    static JSlider slider  = new JSlider(JSlider.HORIZONTAL, 1, 6, 3);
+
+    public static void main(String[] args) throws IOException, LineUnavailableException{
         //*creates a Frame object using Frame.java
         Frame frame = new Frame();
         //*all getting the size of the screen of a specific user/ device
@@ -112,8 +118,23 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
         
+        //*Adding label and slider at the top of the screen to allow user to change wight of projectile
+        JLabel label = new JLabel("Weight of Projectile: ");
+        Panel p = new Panel();
+        p.setOpaque(true);
+        slider.setSize(20, 20);
+        slider.setPaintTicks(true);
+        slider.setMajorTickSpacing(1);
+        slider.addChangeListener(p);
+        p.add(label, BorderLayout.NORTH);
+        p.add(slider, BorderLayout.NORTH);
+        //panel.setSize(1, 1);
+        frame.add(p);
+        
         //* Adding wind to north of screeen
-        frame.add(wind, BorderLayout.NORTH);
+        p.add(wind, BorderLayout.NORTH);
+        wind();
+
     }
 
     /* 
@@ -131,10 +152,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     }
     //* This method is called every 5 milliseconds - it is used to update the position of the projectile using the external variable "j" which points to the location in the arraylist
     public void actionPerformed(ActionEvent e){
+        //*Displaying updated wind value
+        wind.setText("Wind: " + airResistance);
+        
         if(shoot == true){
-            //*Displaying updated wind value
-            wind.setText("Wind: " + airResistance);
-
             //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
             if(xcoords.size()>0){
                 //*This if statement waits every 3 times the actionPerformed method is called to increment j, this slows down the projectiles animation */
@@ -155,6 +176,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                     projy = ScreenHeight - 300;
                     j=0;
                     w=0;
+                    //*Called to randomize air resistance if required
+                    wind();
                 }
             }    
         }
@@ -217,8 +240,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         hx= ivelocity* t * Math.cos(Math.toRadians(angle));
     }
 
-    //*calculation of all relevant variables with air resistance
-    public void acalculations(){
+    public static void wind(){
         //* Used to randomize air resistance in either direction every 2 shots (variable direction determines sign of resistance)
         if(numshots%2==0){
             direction = (int) (Math.random()*2);
@@ -229,6 +251,12 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
                 airResistance = (Math.random()*0.1);
             }
         }
+    }
+
+    
+    
+    //*calculation of all relevant variables with air resistance
+    public void acalculations(){
 
         //*Finding the intersection point of the two points
         intersectionx= mousexpos;
@@ -320,12 +348,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
         }
         //*Checking to see if the shot is behind and lower than the ball and that ball is not already in the air
         if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
+            //* Called to complete all projectile calculations 
             //! Change for air resistance or not
             //calculations();
             acalculations();
             //*Called to fill arraylists with new calculations
             alist();
             shoot = true;
+            //* Variable required for wind
             numshots++;
         }
         else{
@@ -342,9 +372,30 @@ public class Panel extends JPanel implements MouseListener, ActionListener{
     @Override
     public void mouseExited(java.awt.event.MouseEvent e) {}
 
+    //* Used with slider to change the value of the weight of the projectile
+    @Override
+    public void stateChanged(ChangeEvent e) {
+
+        int a = slider.getValue();
+        if(a==1){
+            weight = 20;
+        }
+        else if(a==2){
+            weight = 30;
+        }
+        else if(a==3){
+            weight = 40;
+        }
+        else if(a==4){
+            weight = 50;
+        }
+        else if(a==5){
+            weight = 60;
+        }
+        else{
+            weight = 70;
+        }
+    }
 
 
-
-
-    
 }
