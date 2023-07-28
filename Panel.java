@@ -272,7 +272,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         ivelocity = hypotenuse/1.5;
         //System.out.println("Velocity: " + ivelocity);
 
-        mass = weight / Math.abs(gravity);
+        mass = weight*10 / Math.abs(gravity);
         fraction = airResistance / mass;
         coef1 = gravity * (1/fraction);
         coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
