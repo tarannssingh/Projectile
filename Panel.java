@@ -10,6 +10,7 @@ import java.util.Random;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList; 
 import java.lang.Math;
 import javax.sound.sampled.*;
@@ -73,7 +74,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     //*Variables for air resistance
     static double weight = 30;
-    static double airResistance =0;
+    static double airResistance = 0;
     static int direction;
     static double fraction;
     static double gravity;
@@ -109,6 +110,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     static boolean moon = false;
     static boolean mars = false;
     static boolean jupiter = false;
+
+    static boolean transformed = false;
 
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
     //*Main method that is used to run the program
@@ -212,6 +215,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                     projy = ScreenHeight - 300;
                     j=0;
                     w=0;
+                    transformed = false;
+                    Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
+                    ScreenWidth = (int) screenSize.getWidth();
+                    ScreenHeight = (int) screenSize.getHeight();
                     //*Called to randomize air resistance if required
                     wind();
                 }
@@ -230,38 +237,86 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     
     //*The method that draws the actual graphics
     public void draw(Graphics g){
-        //* Drawing background according to planet
+
+        if(shoot == true){
+            if(xcoords.get(xcoords.size()-1)>ScreenWidth){
+                Graphics2D g2 = (Graphics2D) g;
+                AffineTransform at = new AffineTransform();
+                at.scale(0.5, 0.5);
+                g2.setTransform(at);
+                g2.translate(0,ScreenHeight*2-110);
+                transformed = true;
+            }
+        }
+
+        //* Drawing background according to planet and adjusting for transformation (if ball goes off screen)
         if(moon == true){
-            //*bg
-            g.setColor(new Color(0,0,0));
-            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-            //*ground
-            g.setColor(new Color(218,217,215));
-            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            if(transformed == true){
+                g.setColor(new Color(0,0,0));
+                g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
+                g.setColor(new Color(218,217,215));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+            }
+            else{
+                //*bg
+                g.setColor(new Color(0,0,0));
+                g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+                //*ground
+                g.setColor(new Color(218,217,215));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            }
         }
         else if(earth == true){
-            //*bg
-            g.setColor(new Color(173,216,230));
-            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-            //*ground
-            g.setColor(new Color(0,100,0));
-            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+             if(transformed == true){
+                g.setColor(new Color(173,216,230));
+                g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
+                g.setColor(new Color(0,100,0));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+            }
+            else{
+                //*bg
+                g.setColor(new Color(173,216,230));
+                g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+                //*ground
+                g.setColor(new Color(0,100,0));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            }
         }
         else if(mars == true){
-            //*bg
-            g.setColor(new Color(0,0,0));
-            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-            //*ground
-            g.setColor(new Color(193,68,14));
-            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            if(transformed == true){
+                //*bg
+                g.setColor(new Color(0,0,0));
+                g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
+                //*ground
+                g.setColor(new Color(193,68,14));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+            }
+            else{
+                //*bg
+                g.setColor(new Color(0,0,0));
+                g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+                //*ground
+                g.setColor(new Color(193,68,14));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            }
         }
         else{
-            //*bg
-            g.setColor(new Color(201,144,57));
-            g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
-            //*ground
-            g.setColor(new Color(165,145,134));
-            g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            if(transformed==true){
+                //*bg
+                g.setColor(new Color(201,144,57));
+                g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
+                //*ground
+                g.setColor(new Color(165,145,134));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+            }
+            else{
+                //*bg
+                g.setColor(new Color(201,144,57));
+                g.fillRect(0,0,ScreenWidth, ScreenHeight - PIXEL_SIZE);
+                //*ground
+                g.setColor(new Color(165,145,134));
+                g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+            }
         }
 
         //*Platform
@@ -308,6 +363,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
 
         if(shoot == true){
+
             //*projectile (if shot)
             g.setColor(Color.red);
             g.fillOval(projx,projy,PIXEL_SIZE,PIXEL_SIZE);
@@ -329,9 +385,15 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             direction = (int) (Math.random()*2);
             if(direction%2==0){
                  airResistance = -1*(Math.random()*0.1);
+                 if(airResistance>-0.01){
+                     airResistance = -0.01;
+                 }
             }
             else{
                 airResistance = (Math.random()*0.1);
+                if(airResistance<0.01){
+                    airResistance = 0.01;
+                }
             }
         }
     }
@@ -356,7 +418,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         }
         else{
             //* Jupiter gravity
-            gravity = -80;
+            gravity = -60;
             jupiter = true;
         }
     }
@@ -401,10 +463,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //System.out.println("Angle: " + angle);
         //*Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
-        ivelocity = hypotenuse/1.5;
-        //System.out.println("Velocity: " + ivelocity);
-
-        mass = weight*10 / Math.abs(gravity);
+        ivelocity = hypotenuse/2;
+        
+        mass = weight*30 / Math.abs(gravity);
         fraction = airResistance / mass;
         coef1 = gravity * (1/fraction);
         coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
