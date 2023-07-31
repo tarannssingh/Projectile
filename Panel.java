@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList; 
 import java.lang.Math;
 import javax.sound.sampled.*;
@@ -195,32 +196,35 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         wind.setForeground(new Color(255,255,255));
         
         if(shoot == true){
-            //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
-            if(xcoords.size()>0){
-                //*This if statement waits every 3 times the actionPerformed method is called to increment j, this slows down the projectiles animation */
-                if(w%3==0){
-                    j++;
-                }
-                w++;
-                projx = xcoords.get(j);
-                projy = ycoords.get(j);
-                //*This clears all required variables and things at the end of a shoot (determined when at the end of an arraylist) to prepare for the next shoot
-                if(j==xcoords.size()-1){
-                    shoot = false;
-                    xcoords.clear();
-                    ycoords.clear();
-                    tdiffs.clear();
-                    t=0;
-                    projx = 500;
-                    projy = ScreenHeight - 300;
-                    j=0;
-                    w=0;
-                    transformed = false;
-                    Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
-                    ScreenWidth = (int) screenSize.getWidth();
-                    ScreenHeight = (int) screenSize.getHeight();
-                    //*Called to randomize air resistance if required
-                    wind();
+            //*This draws multiple (in this case 3) iterations of the arraylists for everytime that action performed is called - this speeds up the shot 
+            for(int y =0; y<3; y++){
+                //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
+                if(xcoords.size()>0){
+                    //*This if statement waits every 1 times the actionPerformed method is called to increment j, this slows down the projectiles animation if requred (not doing anthing rn)
+                    if(w%1==0){
+                        j+=1;
+                    }
+                    w++;
+                    projx = xcoords.get(j);
+                    projy = ycoords.get(j);
+                    //*This clears all required variables and things at the end of a shoot (determined when at the end of an arraylist) to prepare for the next shoot
+                    if(j==xcoords.size()-1){
+                        shoot = false;
+                        xcoords.clear();
+                        ycoords.clear();
+                        tdiffs.clear();
+                        t=0;
+                        projx = 500;
+                        projy = ScreenHeight - 300;
+                        j=0;
+                        w=0;
+                        transformed = false;
+                        Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
+                        ScreenWidth = (int) screenSize.getWidth();
+                        ScreenHeight = (int) screenSize.getHeight();
+                        //*Called to randomize air resistance if required
+                        wind();
+                    }
                 }
             }    
         }
@@ -361,6 +365,17 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //Horizontal
         g.fillRect(ScreenWidth/7+133,ScreenHeight-182,35,2);
 
+        //*Shaft
+        Rectangle2D shaft = new Rectangle2D.Double(ScreenWidth/7+50,ScreenHeight-240,120,5);
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(Math.toRadians(angle+90), shaft.getX() + shaft.getWidth()/2, shaft.getY() + shaft.getHeight()/2);
+        rot.translate(0,0);
+        Shape rotatedRect = rot.createTransformedShape(shaft);
+        ((Graphics2D) g).fill(rotatedRect);
+
+
+        g.fillOval(500,ScreenHeight-300,PIXEL_SIZE,PIXEL_SIZE);
+
 
         if(shoot == true){
 
@@ -371,7 +386,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             g.fillOval(mousexpos,mouseypos,10,10);
 
             //*drawing the pathing of the projectile using the arraylists
-            for(int i =0; i<xcoords.size(); i++){
+            for(int i =0; i<xcoords.size(); i+=10){
                 g.setColor(Color.white);
                 g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
             }
@@ -418,7 +433,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         }
         else{
             //* Jupiter gravity
-            gravity = -60;
+            gravity = -50;
             jupiter = true;
         }
     }
@@ -460,13 +475,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         opposite = mouseypos - intersectiony;
         //*Using trig to get the angle of the shot
         angle = Math.toDegrees(Math.atan(opposite/adjacent));
-        //System.out.println("Angle: " + angle);
+        System.out.println("Angle: " + angle);
         //*Using the hypotenuse to act as the initial velocity of the shot
         hypotenuse = Math.sqrt(Math.pow(adjacent,2)+Math.pow(opposite,2));
         ivelocity = hypotenuse/2;
+        System.out.println("Velocity: " + ivelocity);
         
         mass = weight*30 / Math.abs(gravity);
-        fraction = airResistance / mass;
+        fraction = airResistance*10 / mass;
         coef1 = gravity * (1/fraction);
         coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
         vy = coef1 + coef2 * Math.pow(2.71, (t*fraction)*-1);
@@ -487,13 +503,13 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             while(hy>0){
                 //*Increments t differently to add more or less points to the arraylist based on the velocity of the shot
                 if(ivelocity<200){
-                    t+=0.1;  
+                    t+=0.01;  
                 }
                 else if(ivelocity<300){
-                    t+=0.075;
+                    t+=0.0075;
                 }
                 else{
-                    t+=0.05;
+                    t+=0.005;
                 }
 
                 //*Storing values into the xcoords and ycoords arraylist
