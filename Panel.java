@@ -365,13 +365,38 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //Horizontal
         g.fillRect(ScreenWidth/7+133,ScreenHeight-182,35,2);
 
+        //*Left strut
+        Rectangle2D leftstrut = new Rectangle2D.Double(ScreenWidth/7+60,ScreenHeight-240,110,5);
+        AffineTransform lef = new AffineTransform();
+        lef.rotate(Math.toRadians(70), leftstrut.getX() + leftstrut.getWidth()/2, leftstrut.getY() + leftstrut.getHeight()/2);
+        lef.translate(0,0);
+        Shape left = lef.createTransformedShape(leftstrut);
+        ((Graphics2D) g).fill(left);
+
+        //*Right strut
+        Rectangle2D rightstrut = new Rectangle2D.Double(ScreenWidth/7+40,ScreenHeight-215,125,5);
+        AffineTransform rig = new AffineTransform();
+        rig.rotate(Math.toRadians(-70), rightstrut.getX() + rightstrut.getWidth()/2, rightstrut.getY() + rightstrut.getHeight()/2);
+        rig.translate(0,0);
+        Shape right = rig.createTransformedShape(leftstrut);
+        ((Graphics2D) g).fill(right);
+
+        //*Center strut 
+        g.fillRect(ScreenWidth/7+97,ScreenHeight-280,5,100);
+        
+        //*Center bolt
+        g.setColor(new Color(118,92,72));
+        g.fillOval(ScreenWidth/7+93,ScreenHeight-290,15,15);
+        g.setColor(new Color(76,76,76));
+        g.fillOval(ScreenWidth/7+95,ScreenHeight-287,10,10);
+
         //*Shaft
-        Rectangle2D shaft = new Rectangle2D.Double(ScreenWidth/7+50,ScreenHeight-240,120,5);
-        AffineTransform rot = new AffineTransform();
-        rot.rotate(Math.toRadians(angle+90), shaft.getX() + shaft.getWidth()/2, shaft.getY() + shaft.getHeight()/2);
-        rot.translate(0,0);
-        Shape rotatedRect = rot.createTransformedShape(shaft);
-        ((Graphics2D) g).fill(rotatedRect);
+        //Rectangle2D shaft = new Rectangle2D.Double(ScreenWidth/7+50,ScreenHeight-240,120,5);
+        //AffineTransform rot = new AffineTransform();
+        //rot.rotate(Math.toRadians(angle+90), shaft.getX() + shaft.getWidth()/2, shaft.getY() + shaft.getHeight()/2);
+        //rot.translate(0,0);
+        //Shape rotatedRect = rot.createTransformedShape(shaft);
+        //((Graphics2D) g).fill(rotatedRect);
 
 
         g.fillOval(500,ScreenHeight-300,PIXEL_SIZE,PIXEL_SIZE);
