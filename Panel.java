@@ -114,6 +114,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     static boolean transformed = false;
 
+    //* Global decleration of the trail check and its other components
+    static JCheckBox trailCheck;
+    static int trailType = 0;
+
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
     //*Main method that is used to run the program
     public static void main(String[] args) throws IOException, LineUnavailableException{
@@ -152,26 +156,33 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
         planet();
         if(earth == true){
-            JLabel planet = new JLabel("|    Planet: Earth");
+            JLabel planet = new JLabel("|    Planet: Earth    |");
             planet.setForeground(new Color(255,255,255));
             p.add(planet, BorderLayout.NORTH);
         }
         else if(moon == true){
-            JLabel planet = new JLabel("|    Planet: Moon");
+            JLabel planet = new JLabel("|    Planet: Moon    |");
             planet.setForeground(new Color(255,255,255));
             p.add(planet, BorderLayout.NORTH);
         }
         else if(mars == true){
-            JLabel planet = new JLabel("|    Planet: Mars");
+            JLabel planet = new JLabel("|    Planet: Mars    |");
             planet.setForeground(new Color(255,255,255));
             p.add(planet, BorderLayout.NORTH);
         }
         else{
-            JLabel planet = new JLabel("|    Planet: Jupiter");
+            JLabel planet = new JLabel("|    Planet: Jupiter    |");
             planet.setForeground(new Color(255,255,255));
             p.add(planet, BorderLayout.NORTH);
         }
 
+        //* This is for the trail on/off check box
+        trailCheck = new JCheckBox();
+        trailCheck = new JCheckBox("Static Trail");
+        trailCheck.setFocusable(false);
+        trailCheck.setForeground(Color.white);
+        p.add(trailCheck);
+        // checkBox.setFont(new Font("Consolas", Font.PLAIN, 35));
 
     }
 
@@ -228,6 +239,35 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 }
             }    
         }
+
+        //* This is for the trail changing feature
+        int trailNumber = 0;
+            // This is a way to check if the checkbox is selected
+            if (trailCheck.isSelected())
+            {
+                trailNumber = 0;
+            }
+            else
+            {
+                trailNumber = 1;
+            }
+
+            if (trailNumber == 1)
+            { 
+                if (shoot == false)
+                {
+                    trailType = 1;
+                }
+            }
+            if (trailNumber == 0)
+            {
+                if (shoot == false)
+                {
+                    trailType = 0;
+                }
+            }
+
+
         //* Called every 5 milliseconds to repaint graphics method
         repaint();
     }
@@ -411,9 +451,21 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             g.fillOval(mousexpos,mouseypos,10,10);
 
             //*drawing the pathing of the projectile using the arraylists
-            for(int i =0; i<xcoords.size(); i+=10){
+            if (trailType == 0)
+            {
+                for(int i = 0; i < xcoords.size(); i += 20)
+                {
                 g.setColor(Color.white);
                 g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
+                }
+            }
+            if (trailType == 1)
+            {
+                for(int i = 0; i < j ; i += 20)
+                {
+                g.setColor(Color.white);
+                g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
+                } 
             }
         }
     }
