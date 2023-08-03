@@ -115,7 +115,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     static boolean transformed = false;
 
     //* Global decleration of the trail check and its other components
-    static JCheckBox trailCheck;
+    static JCheckBox trailCheck = new JCheckBox("Static Trail");
     static int trailType = 0;
 
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
@@ -177,9 +177,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         }
 
         //* This is for the trail on/off check box
-        trailCheck = new JCheckBox();
-        trailCheck = new JCheckBox("Static Trail");
         trailCheck.setFocusable(false);
+        trailCheck.setOpaque(false);
         trailCheck.setForeground(Color.white);
         p.add(trailCheck);
         // checkBox.setFont(new Font("Consolas", Font.PLAIN, 35));
