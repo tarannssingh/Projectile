@@ -118,6 +118,9 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     static JCheckBox trailCheck = new JCheckBox("Static Trail");
     static int trailType = 0;
 
+    // Globalize the control panel
+    static JPanel control = new JPanel();
+
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
     //*Main method that is used to run the program
     public static void main(String[] args) throws IOException, LineUnavailableException{
@@ -135,6 +138,20 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         projy = ScreenHeight - 300;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
+
+        //* Control Panel for all of the menu items
+        frame.setLayout(new BorderLayout());
+        control.setBackground(Color.lightGray);
+        control.setOpaque(true);
+        control.setBounds(0, 0, ScreenWidth, 50);
+        control.setLayout(new FlowLayout());
+
+        frame.add(control, BorderLayout.NORTH);
+        
+
+
+
+
         
         //*Adding label and slider at the top of the screen to allow user to change wight of projectile
         JLabel label = new JLabel("Weight of Projectile: ");
@@ -145,42 +162,42 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         slider.setPaintTicks(true);
         slider.setMajorTickSpacing(1);
         slider.addChangeListener(p);
-        p.add(label, BorderLayout.NORTH);
-        p.add(slider, BorderLayout.NORTH);
+        control.add(label, BorderLayout.NORTH);
+        control.add(slider, BorderLayout.NORTH);
         //panel.setSize(1, 1);
         frame.add(p);
         
         //* Adding wind to north of screeen
-        p.add(wind, BorderLayout.NORTH);
+        control.add(wind, BorderLayout.NORTH);
         wind();
 
         planet();
         if(earth == true){
             JLabel planet = new JLabel("|    Planet: Earth    |");
             planet.setForeground(new Color(255,255,255));
-            p.add(planet, BorderLayout.NORTH);
+            control.add(planet, BorderLayout.NORTH);
         }
         else if(moon == true){
             JLabel planet = new JLabel("|    Planet: Moon    |");
             planet.setForeground(new Color(255,255,255));
-            p.add(planet, BorderLayout.NORTH);
+            control.add(planet, BorderLayout.NORTH);
         }
         else if(mars == true){
             JLabel planet = new JLabel("|    Planet: Mars    |");
             planet.setForeground(new Color(255,255,255));
-            p.add(planet, BorderLayout.NORTH);
+            control.add(planet, BorderLayout.NORTH);
         }
         else{
             JLabel planet = new JLabel("|    Planet: Jupiter    |");
             planet.setForeground(new Color(255,255,255));
-            p.add(planet, BorderLayout.NORTH);
+            control.add(planet, BorderLayout.NORTH);
         }
 
         //* This is for the trail on/off check box
         trailCheck.setFocusable(false);
         trailCheck.setOpaque(false);
         trailCheck.setForeground(Color.white);
-        p.add(trailCheck);
+        control.add(trailCheck);
         // checkBox.setFont(new Font("Consolas", Font.PLAIN, 35));
 
     }
@@ -299,6 +316,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
                 g.setColor(new Color(218,217,215));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+                control.setForeground(new Color(218,217,215));
             }
             else{
                 //*bg
@@ -307,6 +325,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 //*ground
                 g.setColor(new Color(218,217,215));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
+                control.setForeground(new Color(218,217,215));
             }
         }
         else if(earth == true){
@@ -315,6 +334,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
                 g.setColor(new Color(0,100,0));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
+                control.setForeground(new Color(218,217,215));
             }
             else{
                 //*bg
