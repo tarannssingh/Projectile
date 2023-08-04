@@ -118,8 +118,15 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     static JCheckBox trailCheck = new JCheckBox("Static Trail");
     static int trailType = 0;
 
-    // Globalize the control panel
-    static JPanel control = new JPanel();
+    //* Global button decleration for the block
+    static ImageIcon boxIcon = new ImageIcon("box.png");
+    static Image scaledBoxImage = boxIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+    static ImageIcon scaledBox = new ImageIcon(scaledBoxImage);
+    static JButton boxButton = new JButton();
+    static boolean boxDrop = false;
+    //* Global delcaretion of the box
+    static TheBox box = new TheBox();
+
 
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
     //*Main method that is used to run the program
@@ -138,20 +145,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         projy = ScreenHeight - 300;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
-
-        //* Control Panel for all of the menu items
-        frame.setLayout(new BorderLayout());
-        control.setBackground(Color.lightGray);
-        control.setOpaque(true);
-        control.setBounds(0, 0, ScreenWidth, 50);
-        control.setLayout(new FlowLayout());
-
-        frame.add(control, BorderLayout.NORTH);
-        
-
-
-
-
         
         //*Adding label and slider at the top of the screen to allow user to change wight of projectile
         JLabel label = new JLabel("Weight of Projectile: ");
@@ -162,43 +155,54 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         slider.setPaintTicks(true);
         slider.setMajorTickSpacing(1);
         slider.addChangeListener(p);
-        control.add(label, BorderLayout.NORTH);
-        control.add(slider, BorderLayout.NORTH);
+        p.add(label, BorderLayout.NORTH);
+        p.add(slider, BorderLayout.NORTH);
         //panel.setSize(1, 1);
         frame.add(p);
+
         
         //* Adding wind to north of screeen
-        control.add(wind, BorderLayout.NORTH);
+        p.add(wind, BorderLayout.NORTH);
         wind();
 
         planet();
         if(earth == true){
             JLabel planet = new JLabel("|    Planet: Earth    |");
             planet.setForeground(new Color(255,255,255));
-            control.add(planet, BorderLayout.NORTH);
+            p.add(planet, BorderLayout.NORTH);
         }
         else if(moon == true){
             JLabel planet = new JLabel("|    Planet: Moon    |");
             planet.setForeground(new Color(255,255,255));
-            control.add(planet, BorderLayout.NORTH);
+            p.add(planet, BorderLayout.NORTH);
         }
         else if(mars == true){
             JLabel planet = new JLabel("|    Planet: Mars    |");
             planet.setForeground(new Color(255,255,255));
-            control.add(planet, BorderLayout.NORTH);
+            p.add(planet, BorderLayout.NORTH);
         }
         else{
             JLabel planet = new JLabel("|    Planet: Jupiter    |");
             planet.setForeground(new Color(255,255,255));
-            control.add(planet, BorderLayout.NORTH);
+            p.add(planet, BorderLayout.NORTH);
         }
 
         //* This is for the trail on/off check box
         trailCheck.setFocusable(false);
         trailCheck.setOpaque(false);
         trailCheck.setForeground(Color.white);
-        control.add(trailCheck);
+        p.add(trailCheck);
         // checkBox.setFont(new Font("Consolas", Font.PLAIN, 35));
+
+        //* This is for the block that can interact with the projectile
+        // The basic idea is that there will be a block that will drop down from the screen when this button is clickded. And the projectile can interacte with it. Only one block for now.
+
+        boxButton.setLayout(new FlowLayout());
+        boxButton.setIcon(scaledBox);
+        boxButton.setFocusable(false);
+        p.add(boxButton);
+        
+        
 
     }
 
@@ -284,6 +288,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             }
 
 
+        //* Here is the code for the Box Button and what it will do
+        if (e.getSource() == boxButton && shoot == false) 
+        {
+            boxDrop = true;
+            boxButton.setEnabled(false);
+        }
+
+
         //* Called every 5 milliseconds to repaint graphics method
         repaint();
     }
@@ -316,7 +328,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
                 g.setColor(new Color(218,217,215));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
-                control.setForeground(new Color(218,217,215));
             }
             else{
                 //*bg
@@ -325,7 +336,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 //*ground
                 g.setColor(new Color(218,217,215));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth,90);
-                control.setForeground(new Color(218,217,215));
             }
         }
         else if(earth == true){
@@ -334,7 +344,6 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 g.fillRect(0,-(ScreenHeight*2),ScreenWidth*3, (ScreenHeight - PIXEL_SIZE)*3);
                 g.setColor(new Color(0,100,0));
                 g.fillRect(0,ScreenHeight-90,ScreenWidth*3,90);
-                control.setForeground(new Color(218,217,215));
             }
             else{
                 //*bg
@@ -485,8 +494,23 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 g.setColor(Color.white);
                 g.fillOval(xcoords.get(i),ycoords.get(i),10,10);
                 } 
+                box.paint(g); 
+
             }
         }
+
+
+        // if (boxDrop == true)
+        // {
+        //     box.x = (int) (6/7 * ScreenWidth);
+        //     while (box.y < (ScreenHeight - 40 - 90))
+        //     box.y += 4;
+        //     if ( box.y > (ScreenHeight - 40 - 90))
+        //     {
+        //         box.y = ScreenHeight - 40 - 90;
+        //     }
+        //     box.draw(g); 
+        // }
     }
 
         //*************************************************************************************************************************************RANDOMIZATION METHODS************************************************************************************************//
