@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList; 
 import java.lang.Math;
@@ -132,7 +133,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         frame.setSize((int) screenSize.getWidth(),(int) screenSize.getHeight());
         //*This sets the initila position of the projectile to be at the bottom of the screen
         projx = 500;
-        projy = ScreenHeight - 300;
+        projy = ScreenHeight - 400;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
         
@@ -225,7 +226,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                         tdiffs.clear();
                         t=0;
                         projx = 500;
-                        projy = ScreenHeight - 300;
+                        projy = ScreenHeight - 400;
                         j=0;
                         w=0;
                         transformed = false;
@@ -242,30 +243,22 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //* This is for the trail changing feature
         int trailNumber = 0;
             // This is a way to check if the checkbox is selected
-            if (trailCheck.isSelected())
-            {
+            if (trailCheck.isSelected()){
                 trailNumber = 0;
             }
-            else
-            {
+            else{
                 trailNumber = 1;
             }
-
-            if (trailNumber == 1)
-            { 
-                if (shoot == false)
-                {
+            if (trailNumber == 1){ 
+                if (shoot == false){
                     trailType = 1;
                 }
             }
-            if (trailNumber == 0)
-            {
-                if (shoot == false)
-                {
+            if (trailNumber == 0){
+                if (shoot == false){
                     trailType = 0;
                 }
             }
-
 
         //* Called every 5 milliseconds to repaint graphics method
         repaint();
@@ -280,7 +273,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     
     //*The method that draws the actual graphics
     public void draw(Graphics g){
-
+        
+        //*Changes size of screen if projectile it goes out of frame
         if(shoot == true){
             if(xcoords.get(xcoords.size()-1)>ScreenWidth){
                 Graphics2D g2 = (Graphics2D) g;
@@ -366,10 +360,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         g.setColor(new Color(136,140,141));
         g.fillRect(ScreenWidth/7,ScreenHeight-160,200,80);
 
-        //*Cannon
-
         //*Body
-        g.setColor(new Color(133,94,66));
+        g.setColor(new Color(68,48,34));
         g.fillRect(ScreenWidth/7+50,ScreenHeight-190,100,10);
         g.fillRect(ScreenWidth/7+68,ScreenHeight-195,65,3);
 
@@ -404,7 +396,35 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //Horizontal
         g.fillRect(ScreenWidth/7+133,ScreenHeight-182,35,2);
 
+        //*Counter Weight
+        g.setColor(new Color(85,60,42));
+        //Left wing
+        Rectangle2D leftweig = new Rectangle2D.Double(ScreenWidth/7+100,ScreenHeight-290,35,5);
+        AffineTransform lweig = new AffineTransform();
+        lweig.rotate(Math.toRadians(-50), leftweig.getX() + leftweig.getWidth()/2, leftweig.getY() + leftweig.getHeight()/2);
+        lweig.translate(0,0);
+        Shape leftweight = lweig.createTransformedShape(leftweig);
+        ((Graphics2D) g).fill(leftweight);
+
+        //Right wing
+        Rectangle2D rigweig = new Rectangle2D.Double(ScreenWidth/7+125,ScreenHeight-290,35,5);
+        AffineTransform rweig = new AffineTransform();
+        rweig.rotate(Math.toRadians(50), rigweig.getX() + rigweig.getWidth()/2, rigweig.getY() + rigweig.getHeight()/2);
+        rweig.translate(0,0);
+        Shape rightweight = rweig.createTransformedShape(rigweig);
+        ((Graphics2D) g).fill(rightweight);
+
+        //Semicircle
+        ((Graphics2D) g).setStroke(new BasicStroke(5));
+        ((Graphics2D) g).draw(new Arc2D.Double( ScreenWidth/7+105, ScreenHeight-295, 50, 40, 180, 180, Arc2D.OPEN));
+
+        //Supports
+        g.setColor(new Color(43,30,22));
+         g.fillRect(ScreenWidth/7+127,ScreenHeight-300,5,45);
+         g.fillRect(ScreenWidth/7+105,ScreenHeight-275,50,5);
+
         //*Left strut
+        g.setColor(new Color(133,94,66));
         Rectangle2D leftstrut = new Rectangle2D.Double(ScreenWidth/7+60,ScreenHeight-240,110,5);
         AffineTransform lef = new AffineTransform();
         lef.rotate(Math.toRadians(70), leftstrut.getX() + leftstrut.getWidth()/2, leftstrut.getY() + leftstrut.getHeight()/2);
@@ -429,16 +449,24 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         g.setColor(new Color(76,76,76));
         g.fillOval(ScreenWidth/7+95,ScreenHeight-287,10,10);
 
-        //*Shaft
-        //Rectangle2D shaft = new Rectangle2D.Double(ScreenWidth/7+50,ScreenHeight-240,120,5);
-        //AffineTransform rot = new AffineTransform();
-        //rot.rotate(Math.toRadians(angle+90), shaft.getX() + shaft.getWidth()/2, shaft.getY() + shaft.getHeight()/2);
-        //rot.translate(0,0);
-        //Shape rotatedRect = rot.createTransformedShape(shaft);
-        //((Graphics2D) g).fill(rotatedRect);
+
+         //*Launcher
+         g.setColor(new Color(68,48,34));
+        Rectangle2D launweig = new Rectangle2D.Double(ScreenWidth/7-30,ScreenHeight-275,175,5);
+        AffineTransform laweig = new AffineTransform();
+        laweig.rotate(Math.toRadians(-35), ScreenWidth / 7 - 30 + 125, ScreenHeight - 255+ 5/2);
+        laweig.translate(0,0);
+        Shape launcherweight = laweig.createTransformedShape(launweig);
+        ((Graphics2D) g).fill(launcherweight);
+
+        //Bolt
+        g.setColor(new Color(76,76,76));
+        g.fillOval(ScreenWidth/7+125,ScreenHeight-305,10,10);
 
 
-        g.fillOval(500,ScreenHeight-300,PIXEL_SIZE,PIXEL_SIZE);
+
+
+        g.fillOval(500,ScreenHeight-400,PIXEL_SIZE,PIXEL_SIZE);
 
 
         if(shoot == true){
@@ -574,7 +602,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //*************************************************************************************************************************************INITIALIZATION METHODS************************************************************************************************//
     //* Called at the begining of every new shot to fill the array list with projetile locations
     public void alist(){
-        if(projy == ScreenHeight -300){
+        if(projy == ScreenHeight -400){
             //*find the initial pathing of the projectile as time increases and storing it in the arraylist
             while(hy>0){
                 //*Increments t differently to add more or less points to the arraylist based on the velocity of the shot
@@ -614,6 +642,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                 */
             }
         }
+        System.out.println("Size: " + xcoords.size());
     }
 
     public void getmouseinfo(){
@@ -634,7 +663,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             getmouseinfo();
         }
         //*Checking to see if the shot is behind and lower than the ball and that ball is not already in the air
-        if(mousexpos<500 && mouseypos>ScreenHeight-300 && projx==500 && projy == ScreenHeight-300 && shoot==false){
+        if(mousexpos<500 && mouseypos>ScreenHeight-400 && projx==500 && projy == ScreenHeight-400 && shoot==false){
             //* Called to complete all projectile calculations 
             //! Change for air resistance or not
             //calculations();
