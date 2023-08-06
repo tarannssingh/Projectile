@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import java.util.Random;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
@@ -33,8 +34,8 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     //*Basic variables that are use to determine if the projectile is shoot and if cannon is moved 
     static boolean shoot= false;
-    boolean moveRight= false;
-    boolean moveLeft= false;
+    static boolean moveRight= false;
+    static boolean moveLeft= false;
 
     //*Variables that are used to determine the position of the projectile
     static int projx;
@@ -122,12 +123,19 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
     //* Angle used for the animation of the launcher
     static int pangle = -35;
-    //*Width and Height used for the counterweight
+    //*Width and Height used for the graphics positions to enable them to be changed
     static double counterwidth;
     static double counterheight;
 
     static double launcherwidth;
     static double launcherheight;
+
+    static int aniwidth;
+    static int aniheight;
+
+    //* For moving launcher left and right
+    static Action leftAction;
+    static Action rightAction;
 
         //*************************************************************************************************************************************MAIN METHOD************************************************************************************************//
     //*Main method that is used to run the program
@@ -143,12 +151,18 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //*setting the variables for graphics positioning
         counterwidth = launcherwidth = screenSize.getWidth();
         counterheight = launcherheight = screenSize.getHeight();
+        aniwidth = (int) screenSize.getWidth();
+        aniheight = (int) screenSize.getHeight();
+
+        //*Adjusts initial positioning of launcher
+        aniheight += 70;
+        counterheight = launcherheight += 70;
 
         //*setting our frame to the width and height of the users device 
         frame.setSize((int) screenSize.getWidth(),(int) screenSize.getHeight());
-        //*This sets the initila position of the projectile to be at the bottom of the screen
-        projx = ScreenWidth/8+100;
-        projy = ScreenHeight - 400;
+        //*This sets the initial position of the projectile to be at the bottom of the screen
+        projx = aniwidth/7+55;
+        projy = aniheight - 400;
         //*This implements the mouse listener to the panel allowing for the @Overide methods to be used (bottom)
         frame.addMouseListener(new Panel());
         
@@ -165,6 +179,18 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         p.add(slider, BorderLayout.NORTH);
         //panel.setSize(1, 1);
         frame.add(p);
+
+        //*Setting up key bindings to react to panel actions - uses a & d keys to listen for actions
+
+        leftAction  = p.new LeftAction();
+        rightAction = p.new RightAction();
+
+        p.getInputMap().put(KeyStroke.getKeyStroke('a'), "leftAction");
+        p.getActionMap().put("leftAction", leftAction);
+
+        p.getInputMap().put(KeyStroke.getKeyStroke('d'), "rightAction");
+        p.getActionMap().put("rightAction", rightAction);
+        
         
         //* Adding wind to north of screeen
         p.add(wind, BorderLayout.NORTH);
@@ -220,9 +246,31 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //*Displaying updated wind value
         wind.setText("Wind: " + airResistance);
         wind.setForeground(new Color(255,255,255));
+
+        //*Used to move graphics if moved left or right
+        if(moveLeft == true && shoot == false){
+            aniwidth -= 20;
+            counterwidth -= 20;
+            launcherwidth -= 20;
+            projx = aniwidth/7+55;
+            moveLeft = false;
+        }
+        else{
+            projx = aniwidth/7+55;
+        }
+        if(moveRight == true && shoot == false){
+            aniwidth += 20;
+            counterwidth += 20;
+            launcherwidth += 20;
+            projx = aniwidth/7+55;
+            moveRight = false;
+        }
+        else{
+            projx = aniwidth/7+55;
+        }
         
         //*Makes sure to check that launcher is at end of its animation
-        if(shoot == true && pangle == 60){
+        if(shoot == true && pangle == 61){
             //*This draws multiple (in this case 3) iterations of the arraylists for everytime that action performed is called - this speeds up the shot 
             for(int y =0; y<3; y++){
                 //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
@@ -241,17 +289,18 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
                         ycoords.clear();
                         tdiffs.clear();
                         t=0;
-                        projx = ScreenWidth/8+100;
-                        projy = ScreenHeight - 400;
                         j=0;
+                        projx = aniwidth/8+100;
+                        projy = aniheight - 400;
                         w=0;
                         transformed = false;
                         Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
-                        ScreenWidth = (int) screenSize.getWidth();
-                        ScreenHeight = (int) screenSize.getHeight();
+                        ScreenWidth = aniwidth = (int) screenSize.getWidth();
+                        ScreenHeight = aniheight = (int) screenSize.getHeight();
+                        aniheight += 70;
                         pangle = -35;
                         counterwidth = launcherwidth = ScreenWidth;
-                        counterheight = launcherheight = ScreenHeight;
+                        counterheight = launcherheight = ScreenHeight+70;
                         //*Called to randomize air resistance if required
                         wind();
                     }
@@ -259,13 +308,14 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             }    
         }
 
+        //*Animation of launcher shooting by changing positions of the launcher and counterweight
         if(shoot == true && pangle<60){
             //changing angle and adjusting counterweight/launcher
-            pangle++;
-            launcherwidth--;
-            counterwidth -= 0.66667;
-            launcherheight -= 0.3333;
-            counterheight  += 0.4334;
+            pangle+=2;
+            launcherwidth-=2;
+            counterwidth -= 0.66667*2;
+            launcherheight -= 0.3333*2;
+            counterheight  += 0.4334*2;
         }
 
         //* This is for the trail changing feature
@@ -303,7 +353,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
     public void draw(Graphics g){
         
         //*Changes size of screen if projectile it goes out of frame - Makes sure to check that launcher is at end of its animation
-        if(shoot == true && pangle==60){
+        if(shoot == true && pangle==61){
             if(xcoords.get(xcoords.size()-1)>ScreenWidth){
                 Graphics2D g2 = (Graphics2D) g;
                 AffineTransform at = new AffineTransform();
@@ -384,45 +434,41 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             }
         }
 
-        //*Platform
-        g.setColor(new Color(136,140,141));
-        g.fillRect(ScreenWidth/7,ScreenHeight-160,200,80);
-
         //*Body
         g.setColor(new Color(68,48,34));
-        g.fillRect(ScreenWidth/7+50,ScreenHeight-190,100,10);
-        g.fillRect(ScreenWidth/7+68,ScreenHeight-195,65,3);
+        g.fillRect(aniwidth/7+50,aniheight-190,100,10);
+        g.fillRect(aniwidth/7+68,aniheight-195,65,3);
 
         //*Wheel 1
         //Outer Brown Circle
         g.setColor(new Color(133,94,66));
-        g.fillOval(ScreenWidth/7+30,ScreenHeight-200,40,40);
+        g.fillOval(aniwidth/7+30,aniheight-200,40,40);
         g.setColor(new Color(0,0,0));
         //Inner Black Circle
-        g.fillOval(ScreenWidth/7+35,ScreenHeight-195,30,30);
+        g.fillOval(aniwidth/7+35,aniheight-195,30,30);
         g.setColor(new Color(133,94,66));
         //Inner Brown Circle
-        g.fillOval(ScreenWidth/7+45,ScreenHeight-185,10,10);
+        g.fillOval(aniwidth/7+45,aniheight-185,10,10);
         //Spokes
         //Verticle
-        g.fillRect(ScreenWidth/7+49,ScreenHeight-200,2,35);
+        g.fillRect(aniwidth/7+49,aniheight-200,2,35);
         //Horizontal
-        g.fillRect(ScreenWidth/7+33,ScreenHeight-182,35,2);
+        g.fillRect(aniwidth/7+33,aniheight-182,35,2);
         
         //*Wheel 2
         //Outer Brown Circle
-        g.fillOval(ScreenWidth/7+130,ScreenHeight-200,40,40);
+        g.fillOval(aniwidth/7+130,aniheight-200,40,40);
         g.setColor(new Color(0,0,0));
         //Inner Black Circle
-        g.fillOval(ScreenWidth/7+135,ScreenHeight-195,30,30);
+        g.fillOval(aniwidth/7+135,aniheight-195,30,30);
         g.setColor(new Color(133,94,66));
         //Inner Brown Circle
-        g.fillOval(ScreenWidth/7+145,ScreenHeight-185,10,10);
+        g.fillOval(aniwidth/7+145,aniheight-185,10,10);
         //Spokes
         //Verticle
-        g.fillRect(ScreenWidth/7+149,ScreenHeight-200,2,35);
+        g.fillRect(aniwidth/7+149,aniheight-200,2,35);
         //Horizontal
-        g.fillRect(ScreenWidth/7+133,ScreenHeight-182,35,2);
+        g.fillRect(aniwidth/7+133,aniheight-182,35,2);
 
         //*Counter Weight
         g.setColor(new Color(85,60,42));
@@ -460,7 +506,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
         //*Left strut
         g.setColor(new Color(133,94,66));
-        Rectangle2D leftstrut = new Rectangle2D.Double(ScreenWidth/7+60,ScreenHeight-240,110,5);
+        Rectangle2D leftstrut = new Rectangle2D.Double(aniwidth/7+60,aniheight-240,110,5);
         AffineTransform lef = new AffineTransform();
         lef.rotate(Math.toRadians(70), leftstrut.getX() + leftstrut.getWidth()/2, leftstrut.getY() + leftstrut.getHeight()/2);
         lef.translate(0,0);
@@ -468,7 +514,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         ((Graphics2D) g).fill(left);
 
         //*Right strut
-        Rectangle2D rightstrut = new Rectangle2D.Double(ScreenWidth/7+40,ScreenHeight-215,125,5);
+        Rectangle2D rightstrut = new Rectangle2D.Double(aniwidth/7+40,aniheight-215,125,5);
         AffineTransform rig = new AffineTransform();
         rig.rotate(Math.toRadians(-70), rightstrut.getX() + rightstrut.getWidth()/2, rightstrut.getY() + rightstrut.getHeight()/2);
         rig.translate(0,0);
@@ -476,13 +522,13 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         ((Graphics2D) g).fill(right);
 
         //*Center strut 
-        g.fillRect(ScreenWidth/7+97,ScreenHeight-280,5,100);
+        g.fillRect(aniwidth/7+97,aniheight-280,5,100);
         
         //*Center bolt
         g.setColor(new Color(118,92,72));
-        g.fillOval(ScreenWidth/7+93,ScreenHeight-290,15,15);
+        g.fillOval(aniwidth/7+93,aniheight-290,15,15);
         g.setColor(new Color(76,76,76));
-        g.fillOval(ScreenWidth/7+95,ScreenHeight-287,10,10);
+        g.fillOval(aniwidth/7+95,aniheight-287,10,10);
 
 
         //*Launcher
@@ -495,13 +541,10 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         ((Graphics2D) g).fill(launcherweight);
 
 
+        g.fillOval(aniwidth/7+55,aniheight-400,PIXEL_SIZE,PIXEL_SIZE);
 
 
-
-        g.fillOval(ScreenWidth/8+100,ScreenHeight-400,PIXEL_SIZE,PIXEL_SIZE);
-
-
-        if(shoot == true && pangle==60){
+        if(shoot == true && pangle==61){
 
             //*projectile (if shot)
             g.setColor(Color.red);
@@ -618,7 +661,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //System.out.println("Velocity: " + ivelocity);
         
         mass = weight*30 / Math.abs(gravity);
-        fraction = airResistance*10 / mass;
+        fraction = airResistance*50 / mass;
         coef1 = gravity * (1/fraction);
         coef2 = ivelocity * Math.sin(Math.toRadians(angle)) - coef1;
         vy = coef1 + coef2 * Math.pow(2.71, (t*fraction)*-1);
@@ -634,7 +677,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //*************************************************************************************************************************************INITIALIZATION METHODS************************************************************************************************//
     //* Called at the begining of every new shot to fill the array list with projetile locations
     public void alist(){
-        if(projy == ScreenHeight -400){
+        if(projy == aniheight -400){
             //*find the initial pathing of the projectile as time increases and storing it in the arraylist
             while(hy>0){
                 //*Increments t differently to add more or less points to the arraylist based on the velocity of the shot
@@ -695,7 +738,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
             getmouseinfo();
         }
         //*Checking to see if the shot is behind and lower than the ball and that ball is not already in the air
-        if(mousexpos<ScreenWidth/8+100 && mouseypos>ScreenHeight-400 && projx==ScreenWidth/8+100 && projy == ScreenHeight-400 && shoot==false){
+        if(mousexpos<aniwidth/7+55 && mouseypos>aniheight-400 && projx==aniwidth/7+55 && projy == aniheight-400 && shoot==false){
             //* Called to complete all projectile calculations 
             //! Change for air resistance or not
             //calculations();
@@ -745,5 +788,23 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         }
     }
 
+    //*Classes used to listen for action performed and change the specific variables required
+    public class LeftAction extends AbstractAction{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            moveLeft = true;
+        }
+        
+    }
+
+        public class RightAction extends AbstractAction{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            moveRight = true;
+        }
+        
+    }
 
 }
