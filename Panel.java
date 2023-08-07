@@ -184,13 +184,19 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
 
         leftAction  = p.new LeftAction();
         rightAction = p.new RightAction();
-
+        
         p.getInputMap().put(KeyStroke.getKeyStroke('a'), "leftAction");
         p.getActionMap().put("leftAction", leftAction);
 
         p.getInputMap().put(KeyStroke.getKeyStroke('d'), "rightAction");
         p.getActionMap().put("rightAction", rightAction);
-        
+
+        //*Prevents slider bug with moving launcher
+        slider.getInputMap().put(KeyStroke.getKeyStroke('a'), "leftAction");
+        slider.getActionMap().put("leftAction", leftAction);
+      
+        slider.getInputMap().put(KeyStroke.getKeyStroke('d'), "rightAction");
+        slider.getActionMap().put("rightAction", rightAction);
         
         //* Adding wind to north of screeen
         p.add(wind, BorderLayout.NORTH);
@@ -272,7 +278,7 @@ public class Panel extends JPanel implements MouseListener, ActionListener, Chan
         //*Makes sure to check that launcher is at end of its animation
         if(shoot == true && pangle == 61){
             //*This draws multiple (in this case 3) iterations of the arraylists for everytime that action performed is called - this speeds up the shot 
-            for(int y =0; y<3; y++){
+            for(int y =0; y<4; y++){
                 //*This if statement is required to bypass the initial value of "j" which resulted in an index out of bounds error
                 if(xcoords.size()>0){
                     //*This if statement waits every 1 times the actionPerformed method is called to increment j, this slows down the projectiles animation if requred (not doing anthing rn)
